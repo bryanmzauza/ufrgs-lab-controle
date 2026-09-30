@@ -5,208 +5,246 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bancada Seis Tanques</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+/* Tela no padrão de SDCD (ISA-101): cinza claro predominante, em vários tons, sem tema escuro.
+   Cor só para alarme (1 vermelho, 2 amarelo, 3 azul) e para as penas das tendências. */
 :root{
   color-scheme:light;
-  --plane:#dfe2e5; --surface:#eceef0; --chart:#f7f8f9; --raised:#ffffff;
-  --ink:#14181c; --ink-2:#4a5159; --muted:#737b84;
-  --line:#c3c8ce; --hair:#d9dde1;
-  --equip:#545c65; --pipe:#b3b9bf; --water:#86aac4; --flow:#2c6a97;
-  --accent:#1d6469; --accent-ink:#ffffff; --accent-wash:rgba(29,100,105,.12);
-  --warn:#fab219; --warn-ink:#6b4a00; --crit:#d03b3b; --crit-ink:#9f2222; --good:#0ca30c; --good-ink:#006300;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
-  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --cond:"IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --plane:#151819; --surface:#1e2225; --chart:#1b1e21; --raised:#262b2f;
-    --ink:#eef1f3; --ink-2:#b8bfc6; --muted:#8a939b;
-    --line:#3a4146; --hair:#2b3035;
-    --equip:#9ea7b0; --pipe:#454c52; --water:#3a6484; --flow:#86bde3;
-    --accent:#62b6bb; --accent-ink:#0b1c1d; --accent-wash:rgba(98,182,187,.16);
-    --warn-ink:#fab219; --crit-ink:#ef7b7b; --good-ink:#3cc43c;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --plane:#151819; --surface:#1e2225; --chart:#1b1e21; --raised:#262b2f;
-  --ink:#eef1f3; --ink-2:#b8bfc6; --muted:#8a939b;
-  --line:#3a4146; --hair:#2b3035;
-  --equip:#9ea7b0; --pipe:#454c52; --water:#3a6484; --flow:#86bde3;
-  --accent:#62b6bb; --accent-ink:#0b1c1d; --accent-wash:rgba(98,182,187,.16);
-  --warn-ink:#fab219; --crit-ink:#ef7b7b; --good-ink:#3cc43c;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --plane:#c8cbce; --surface:#dcdee0; --head:#c0c4c8; --chart:#eceeef; --raised:#f5f6f7;
+  --trend:#e2e4e6; --trend-grid:#c6cacd; --trend-base:#9ca2a8; --trend-text:#5a6168;
+  --ink:#1f2327; --ink-2:#464c52; --muted:#6b7279;
+  --line:#a4aaaf; --hair:#c6cacd;
+  --equip:#6e757c; --pipe:#b6bbc0; --pipe-on:#7e858c; --water:#acb2b8; --pvbar:#a0a7ae;
+  --accent:#6f777e; --accent-ink:#ffffff; --accent-wash:rgba(111,119,126,.16);
+  --alm1:#d9261c; --alm1-ink:#ffffff; --alm2:#f0c000; --alm2-ink:#1b1600; --alm3:#2a86b8; --alm3-ink:#ffffff;
+  --warn:#f0c000; --warn-ink:#6b5200; --crit:#d9261c; --crit-ink:#a3140c; --good:#7b8289; --good-ink:#464c52;
+  --s1:#1f4fbf; --s2:#8a2f9f; --s3:#0e7c78; --s4:#7d5418; --s5:#3b7d1b; --s6:#b23a7d;
+  --sans:"Segoe UI", Tahoma, Arial, system-ui, sans-serif;
+  --mono:Consolas, "Cascadia Mono", ui-monospace, "DejaVu Sans Mono", monospace;
 }
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;background:var(--plane);color:var(--ink);font:14px/1.45 var(--sans)}
-.app{max-width:1900px;margin:0 auto;padding:8px 16px 12px;display:flex;flex-direction:column;gap:8px}
+body{margin:0;background:var(--plane);color:var(--ink);font:13px/1.4 var(--sans)}
+.app{max-width:1920px;margin:0 auto;padding:6px 10px 0;display:flex;flex-direction:column;gap:6px;min-height:100vh}
 button,select,input{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-h1{font:600 21px/1.1 var(--cond);letter-spacing:.01em;margin:0}
-h2{font:600 12.5px/1.2 var(--cond);letter-spacing:.08em;text-transform:uppercase;margin:0;color:var(--ink-2)}
-h3{font:600 13px var(--cond);letter-spacing:.03em;margin:0}
-.eyebrow{font:500 10.5px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.note{font-size:12px;color:var(--ink-2)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+h1{font:700 17px/1.1 var(--sans);letter-spacing:.04em;margin:0}
+h2{font:700 11.5px/1.2 var(--sans);letter-spacing:.07em;text-transform:uppercase;margin:0;color:var(--ink)}
+h3{font:700 12px var(--sans);letter-spacing:.02em;margin:0}
+.eyebrow{font:11px/1.2 var(--mono);color:var(--muted)}
+.note{font-size:11.5px;color:var(--ink-2)}
 code{font-family:var(--mono);font-size:.92em}
 
+/* ---------- alarmes: indicadores de prioridade ---------- */
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+.ind-h{display:inline-grid;place-items:center;width:16px;height:15px;font:700 10px/1 var(--sans);flex:none}
+.ind-h.p1{background:var(--alm1);color:var(--alm1-ink)}
+.ind-h.p2{background:var(--alm2);color:var(--alm2-ink);clip-path:polygon(50% 0,100% 100%,0 100%);padding-top:4px}
+.ind-h.p3{background:var(--alm3);color:var(--alm3-ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.unack{animation:blink 1s linear infinite}
+@media (prefers-reduced-motion: reduce){.unack{animation:none;outline:2px dotted var(--ink);outline-offset:1px}}
+
 /* ---------- barra superior ---------- */
-.topbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;border-bottom:1px solid var(--line);padding-bottom:7px}
-.brand{display:flex;flex-direction:column;gap:2px;margin-right:6px}
-.tabs{display:flex;gap:2px;flex-wrap:wrap}
-.tab{border:1px solid transparent;background:transparent;border-radius:4px;padding:6px 12px;cursor:pointer;font:600 13px var(--cond);letter-spacing:.03em;color:var(--ink-2)}
-.tab:hover{border-color:var(--line)}
-.tab[aria-selected="true"]{background:var(--surface);border-color:var(--line);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
-.run{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
-.btn{border:1px solid var(--line);background:var(--raised);border-radius:4px;padding:5px 11px;cursor:pointer;font-weight:500;font-size:13px}
+.topbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--head);border:1px solid var(--line);padding:5px 8px}
+.brand{display:flex;flex-direction:column;gap:2px;margin-right:4px}
+.tabs{display:flex;gap:3px;flex-wrap:wrap}
+.tab{position:relative;border:1px solid var(--line);background:var(--surface);padding:5px 12px;cursor:pointer;font:600 12.5px var(--sans);color:var(--ink);min-width:92px}
+.tab:hover{background:var(--raised)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab-n{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;background:var(--alm1);color:var(--alm1-ink);font:700 10.5px/17px var(--sans);text-align:center;border-radius:9px}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto}
+.btn{border:1px solid var(--line);background:var(--raised);padding:4px 10px;cursor:pointer;font-weight:600;font-size:12.5px}
 .btn:hover{border-color:var(--equip)}
+.btn:active{background:var(--surface)}
 .btn:disabled{opacity:.55;cursor:default}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn.small{padding:2px 8px;font-size:12px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--raised)}
-.seg button{border:0;background:transparent;padding:4px 8px;cursor:pointer;font:500 12px/1.2 var(--mono);white-space:nowrap}
+.btn.small{padding:2px 8px;font-size:11.5px}
+.seg{display:inline-flex;border:1px solid var(--line);overflow:hidden;background:var(--raised)}
+.seg button{border:0;background:transparent;padding:4px 8px;cursor:pointer;font:600 11.5px/1.2 var(--mono);white-space:nowrap}
 .ctl .seg{display:flex}.ctl .seg button{flex:1;padding:4px 2px;font-size:11px;overflow:hidden;text-overflow:ellipsis}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-select{border:1px solid var(--line);background:var(--raised);border-radius:4px;padding:4px 8px;font-size:13px;max-width:280px}
-.clock{display:flex;align-items:baseline;gap:6px;padding:3px 10px;border:1px solid var(--line);border-radius:4px;background:var(--chart);min-width:130px}
-.clock .lbl{font:500 11px var(--mono);color:var(--muted)}
-.clock .val{font:500 14px var(--mono);font-variant-numeric:tabular-nums}
+select{border:1px solid var(--line);background:var(--raised);padding:4px 6px;font-size:12.5px;max-width:280px}
+.clocks{display:flex;gap:6px}
+.clock{display:flex;align-items:baseline;gap:6px;padding:3px 8px;border:1px solid var(--line);background:var(--chart);min-width:120px}
+.clock .lbl{font:700 10.5px var(--sans);color:var(--muted);letter-spacing:.05em}
+.clock .val{font:600 13.5px var(--mono);font-variant-numeric:tabular-nums}
+.clock.wall{min-width:0}
 
-/* ---------- faixa do cenário ---------- */
-.banner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:6px 12px;font-size:13px}
-.banner b{font:600 13.5px var(--cond);letter-spacing:.02em}
-.banner .short{color:var(--ink-2);flex:1;min-width:260px}
+/* ---------- barra de estado ---------- */
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;background:var(--surface);border:1px solid var(--line);padding:3px 8px;font-size:12px;min-height:28px}
+.status .lbl{font:700 10.5px var(--sans);letter-spacing:.06em;color:var(--muted)}
+.status b{font-weight:700;white-space:nowrap}
+.status .short{color:var(--ink-2);flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status .chips{display:flex;gap:6px;flex-wrap:wrap}
 
 /* ---------- chips e selos ---------- */
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1.3;padding:2px 7px;border-radius:10px;border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
-.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;line-height:1.3;padding:1px 6px;border:1px solid var(--line);background:var(--raised);color:var(--ink-2);white-space:nowrap}
+.chip::before{content:"";width:7px;height:7px;background:var(--muted);flex:none}
 .chip.warn{border-color:var(--warn);color:var(--warn-ink)}.chip.warn::before{background:var(--warn)}
 .chip.crit{border-color:var(--crit);color:var(--crit-ink)}.chip.crit::before{background:var(--crit)}
 .chip.good{border-color:var(--good);color:var(--good-ink)}.chip.good::before{background:var(--good)}
-.badge{font:600 10.5px/1 var(--mono);letter-spacing:.04em;padding:3px 6px;border-radius:3px;border:1px solid var(--line);color:var(--ink-2)}
-.badge.pid{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}
 
 /* ---------- aviso de servidor ---------- */
-.offline{background:var(--surface);border:1px solid var(--crit);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.offline{background:var(--surface);border:2px solid var(--crit);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .offline h2{color:var(--crit-ink)}
-.offline pre{margin:0;background:var(--chart);border:1px solid var(--hair);border-radius:4px;padding:8px 10px;font:12px/1.5 var(--mono);white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
+.offline pre{margin:0;background:var(--chart);border:1px solid var(--hair);padding:8px 10px;font:12px/1.5 var(--mono);white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
 .offline p{margin:0;font-size:13px}
 
-/* ---------- layout ---------- */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
-.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-.op{display:grid;gap:10px;grid-template-columns:minmax(380px,530px) minmax(0,1fr) minmax(320px,350px);align-items:start}
-@media (max-width:1400px){.op{grid-template-columns:minmax(340px,440px) minmax(0,1fr)}.op .loops-col{grid-column:1/-1}.loops-col .loops{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}}
+/* ---------- painéis ---------- */
+.card{background:var(--surface);border:1px solid var(--line);padding:0 10px 10px;min-width:0}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 -10px 8px;padding:4px 10px;background:var(--head);border-bottom:1px solid var(--line);min-height:28px}
+.op{display:grid;gap:6px;grid-template-columns:minmax(340px,480px) minmax(420px,1fr) auto;align-items:start}
+@media (max-width:1400px){.op{grid-template-columns:minmax(320px,440px) minmax(0,1fr)}.op .fp-col{grid-column:1/-1}}
 @media (max-width:860px){.op{grid-template-columns:minmax(0,1fr)}}
 
-/* ---------- planta ---------- */
+/* ---------- sinótico ---------- */
 #plant{width:100%;height:auto;display:block;max-width:100%}
-#plant text{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.t-tag{font-size:14px;font-weight:600;fill:var(--ink)}
-.t-val{font-size:13px;font-weight:500;fill:var(--ink)}
-.t-small{font-size:12px;fill:var(--ink-2)}
+#plant text{font-family:var(--sans);font-variant-numeric:tabular-nums}
+.t-tag{font-size:13.5px;font-weight:700;fill:var(--ink)}
+.t-val{font:600 13px var(--mono);fill:var(--ink)}
+.t-small{font:12px var(--mono);fill:var(--ink-2)}
 .t-mid{text-anchor:middle}
 .tank-head{fill:var(--chart);opacity:.92}
 .arrow-head{fill:var(--equip)}
 .halo{fill:none;stroke:var(--surface);stroke-width:11;stroke-linecap:butt}
 .pipe{fill:none;stroke:var(--pipe);stroke-width:5;stroke-linecap:square}
-.flow{fill:none;stroke:var(--flow);stroke-width:2.2;stroke-dasharray:5 7;stroke-linecap:round}
+.pipe.on{stroke:var(--pipe-on)}
 .tank-wall{fill:var(--chart);stroke:var(--equip);stroke-width:1.5}
-.tank-wall.alarm{stroke:var(--crit);stroke-width:2.5}
+.tank-wall.a1{stroke:var(--alm1);stroke-width:3}
+.tank-wall.a2{stroke:var(--alm2);stroke-width:3}
+.tank-wall.a3{stroke:var(--alm3);stroke-width:3}
+.tank-hit{cursor:pointer}
+.tank-hit:hover .tank-wall{stroke-dasharray:4 2}
 .liquid{fill:var(--water)}
 .spline{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3}
 .spmark{fill:var(--ink)}
 .lo-mark{stroke:var(--crit);stroke-width:2}
 .pump-body{stroke:var(--equip);stroke-width:1.5}
 .valve{stroke:var(--equip);stroke-width:1.4;stroke-linejoin:round}
+.valve.a1{stroke:var(--alm1);stroke-width:2.4}
+.valve.a2{stroke:var(--alm2);stroke-width:2.4}
+.valve.a3{stroke:var(--alm3);stroke-width:2.4}
 .valve3{fill:var(--chart);stroke:var(--equip);stroke-width:1.4;stroke-linejoin:round}
-.valve.sat{stroke:var(--warn);stroke-width:2}
 .res{fill:var(--water);opacity:.55;stroke:var(--equip);stroke-width:1.2}
-.ssgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
-.sscell{display:flex;align-items:center;justify-content:space-between;gap:6px;border:1px solid var(--hair);background:var(--chart);border-radius:4px;padding:3px 7px}
-.sscell .nm{font:600 12px var(--mono)}
+.ind path{stroke:var(--ink);stroke-width:.8}
+.ind text{font:700 10px var(--sans)!important;text-anchor:middle}
+.ind.p1 path{fill:var(--alm1)}.ind.p1 text{fill:var(--alm1-ink)}
+.ind.p2 path{fill:var(--alm2)}.ind.p2 text{fill:var(--alm2-ink)}
+.ind.p3 path{fill:var(--alm3)}.ind.p3 text{fill:var(--alm3-ink)}
+.ssgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.sscell{display:flex;align-items:center;justify-content:space-between;gap:6px;border:1px solid var(--hair);background:var(--chart);padding:2px 6px}
+.sscell .nm{font:700 12px var(--sans)}
 .sscell .v{font:12px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2);margin-left:auto}
 
 /* ---------- tendências ---------- */
 .chart-block{display:flex;flex-direction:column;gap:3px}
 .chart-block+.chart-block{margin-top:6px}
 .chart-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.legend{display:flex;flex-wrap:wrap;gap:2px 11px;font-size:11.5px;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:2px 11px;font-size:11px;color:var(--ink-2)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .lkey{display:inline-block;width:14px;height:0;border-top:2px solid var(--c)}
 .lkey.dash{border-top-style:dashed;border-top-color:var(--muted)}
-.chart-wrap{position:relative;background:var(--chart);border:1px solid var(--hair);border-radius:4px;height:210px}
+.chart-wrap{position:relative;background:var(--trend);border:1px solid var(--line);height:210px}
 .chart-wrap.short{height:150px}
 .chart-wrap canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
-.tip{position:absolute;pointer-events:none;background:var(--raised);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.14);min-width:120px;z-index:2}
-.tip .tt{font:500 11px var(--mono);color:var(--muted);margin-bottom:3px}
+.tip{position:absolute;pointer-events:none;background:var(--raised);border:1px solid var(--line);padding:6px 8px;font-size:12px;box-shadow:0 3px 10px rgba(0,0,0,.18);min-width:120px;z-index:2}
+.tip .tt{font:11px var(--mono);color:var(--muted);margin-bottom:3px}
 .tip .row{display:flex;align-items:center;gap:6px;white-space:nowrap}
-.tip .row b{font:500 12px var(--mono);font-variant-numeric:tabular-nums;min-width:48px;text-align:right;color:var(--ink)}
+.tip .row b{font:600 12px var(--mono);font-variant-numeric:tabular-nums;min-width:48px;text-align:right;color:var(--ink)}
 .tip .row i{font-style:normal;color:var(--ink-2)}
+.tscroll-row{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:6px;align-items:center;padding-left:36px;margin-top:4px}
+.tscroll{overflow-x:scroll;overflow-y:hidden;height:16px;background:var(--trend);border:1px solid var(--line);scrollbar-color:var(--equip) var(--trend)}
+.tscroll::-webkit-scrollbar{height:14px}
+.tscroll::-webkit-scrollbar-track{background:var(--trend)}
+.tscroll::-webkit-scrollbar-thumb{background:var(--equip);border:2px solid var(--trend)}
+.tscroll>div{height:1px}
+.tscroll-row .btn{padding:1px 4px;font-size:11px}
+.tscroll-row .btn.live{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.trend-mode.hist{border-color:var(--accent);color:var(--accent)}.trend-mode.hist::before{background:var(--accent)}
 .trend-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:6px}
-.csv-fallback{width:100%;height:110px;font:11px var(--mono);margin-top:8px;background:var(--chart);color:var(--ink);border:1px solid var(--line);border-radius:4px}
+.csv-fallback{width:100%;height:110px;font:11px var(--mono);margin-top:8px;background:var(--chart);color:var(--ink);border:1px solid var(--line)}
 
-/* ---------- cartões das malhas ---------- */
-.loops{display:flex;flex-direction:column;gap:7px}
-.loop{border:1px solid var(--line);border-radius:5px;background:var(--chart);padding:7px 10px;display:flex;flex-direction:column;gap:4px}
-.loop-head{display:flex;align-items:center;gap:7px;min-height:22px}
-.loop-head .key{width:4px;align-self:stretch;border-radius:2px;background:var(--c)}
-.loop-head .tag{font:600 13px var(--mono)}
-.loop-head .desc{font:12px var(--mono);color:var(--ink-2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.readout{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.readout div{display:flex;flex-direction:column}
-.readout .k{font:500 10px var(--mono);letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
-.readout .v{font:500 15px var(--mono);font-variant-numeric:tabular-nums}
-.tune-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:11.5px var(--mono);color:var(--ink-2)}
-.tune-line .params{flex:1;min-width:0}
+/* ---------- faceplates dos controladores ---------- */
+.fps{display:grid;grid-template-columns:repeat(4,112px);gap:6px}
+@media (max-width:1400px){.fps{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:560px){.fps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fp{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);background:var(--chart);padding:5px 6px;min-width:0}
+.fp.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.fp-head{display:flex;align-items:center;gap:5px;min-height:18px}
+.fp-head .key{width:4px;height:14px;background:var(--c);flex:none}
+.fp-tag{font:700 13px var(--sans)}
+.fp-alm{margin-left:auto;display:flex}
+.fp-desc{font-size:11px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-mode{display:flex;gap:4px}
+.fp-mode span{font:700 10.5px var(--sans);padding:1px 6px;border:1px solid var(--line);background:var(--surface);letter-spacing:.04em}
+.fp-mode .aut{background:var(--accent-wash);border-color:var(--accent);color:var(--accent)}
+.fp-bars{display:grid;grid-template-columns:18px minmax(0,1fr) 12px;gap:0 5px;height:210px;padding:6px 0}
+.fp-scale{position:relative}
+.fp-scale span{position:absolute;right:0;transform:translateY(-50%);font:10px var(--mono);color:var(--muted)}
+.bar{position:relative;background:var(--raised);border:1px solid var(--line)}
+.bar .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--pvbar)}
+.mvbar .fill{background:var(--equip)}
+.bar .sp{position:absolute;left:-5px;right:-1px;height:0;border-top:2px solid var(--ink);transform:translateY(1px)}
+.bar .sp::before{content:"";position:absolute;left:0;top:-6px;border:5px solid transparent;border-left:6px solid var(--ink);border-right:0}
+.bar .lo{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--crit)}
+.fp-read{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:0 4px;align-items:baseline;font-variant-numeric:tabular-nums}
+.fp-read .k{font:700 10.5px var(--sans);color:var(--muted)}
+.fp-read .v{font:600 13.5px var(--mono);text-align:right}
+.fp-read .v.pv{font-size:16px}
+.fp-read .u{font-size:10.5px;color:var(--muted);min-width:18px}
+.fp-sp{display:grid;grid-template-columns:22px minmax(0,1fr) 22px;gap:2px}
+.fp-sp .btn{padding:0;font-size:10px;line-height:22px}
+.fp-sp input{width:100%;min-width:0;text-align:right;font:600 13px var(--mono);border:1px solid var(--line);background:var(--raised);padding:2px 4px}
+.fp-sp input:focus{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.fp-tune{display:grid;grid-template-columns:auto 1fr;gap:0 6px;font:10.5px/1.35 var(--mono);color:var(--ink-2)}
+.fp-tune b{font-weight:600;color:var(--ink);text-align:right}
+.fp-tune .dg{grid-column:1/-1;color:var(--muted);height:2.7em;overflow:hidden}
+.fp .fp-cfg{align-self:stretch}
 
 /* ---------- sliders ---------- */
 .sl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;align-items:baseline}
 .sl label{font-size:12.5px;color:var(--ink);min-width:0}
 .sl label .sym{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:5px}
-.sl output{font:500 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.sl output{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
 .sl input{grid-column:1/-1;width:100%;accent-color:var(--accent);margin:1px 0 0;height:16px}
 .sl .hint{grid-column:1/-1;font-size:11px;color:var(--muted)}
 .sl.changed label,.sl.changed output{color:var(--accent)}
 .sl.changed output::after{content:" •"}
 .sl-list{display:flex;flex-direction:column;gap:7px}
-.subhead{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.subhead{font:700 10.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 
-/* ---------- configuração ---------- */
-.cfg{display:grid;gap:10px;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr);align-items:start}
+/* ---------- parâmetros ---------- */
+.cfg{display:grid;gap:6px;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr);align-items:start}
 @media (max-width:1400px){.cfg{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}}
-.cfg-col{display:flex;flex-direction:column;gap:10px;min-width:0}
-.ctl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
-.ctl{border:1px solid var(--line);border-radius:5px;background:var(--chart);padding:8px 10px;display:flex;flex-direction:column;gap:7px}
-.ctl .loop-head .desc{font-size:11.5px}
+.cfg-col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px}
+.ctl{border:1px solid var(--line);background:var(--chart);padding:8px 10px;display:flex;flex-direction:column;gap:7px}
+.ctl.flash{outline:2px solid var(--accent);outline-offset:-1px}
+.loop-head{display:flex;align-items:center;gap:7px;min-height:22px}
+.loop-head .key{width:4px;align-self:stretch;background:var(--c)}
+.loop-head .tag{font:700 13px var(--sans)}
+.loop-head .desc{font:11.5px var(--mono);color:var(--ink-2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row4{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px 14px}
 .others{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px}
 .oth{display:flex;align-items:center;gap:6px;min-width:0}
 .oth span{font:11.5px var(--mono);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.oth input{border:1px solid var(--line);background:var(--raised);border-radius:4px;padding:1px 5px;font:12px var(--mono);width:84px;text-align:right}
+.oth input{border:1px solid var(--line);background:var(--raised);padding:1px 5px;font:12px var(--mono);width:84px;text-align:right}
 .oth.changed span{color:var(--accent)}
 .oth.changed input{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 
 /* ---------- análise ---------- */
-.ana{display:grid;gap:10px;grid-template-columns:minmax(340px,400px) minmax(280px,330px) minmax(0,1fr);align-items:start}
+.ana{display:grid;gap:6px;grid-template-columns:minmax(340px,400px) minmax(280px,330px) minmax(0,1fr);align-items:start}
 @media (max-width:1400px){.ana{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}}
 .ss{width:100%;border-collapse:collapse;font-size:12.5px}
 .ss td,.ss th{padding:3px 6px;border-bottom:1px solid var(--hair);text-align:left}
-.ss th{font:500 11px var(--mono);color:var(--muted);border-bottom-color:var(--line)}
+.ss th{font:700 10.5px var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom-color:var(--line)}
 .ss td.num,.ss th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
 .ss td .sym{font-family:var(--mono);color:var(--ink-2)}
-.ss tr.bad td.num{color:var(--crit-ink);font-weight:600}
+.ss tr.bad td.num{color:var(--crit-ink);font-weight:700}
 .var-tools{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:6px}
-.var-tools input{border:1px solid var(--line);background:var(--raised);border-radius:4px;padding:3px 8px;font-size:13px;min-width:220px}
+.var-tools input{border:1px solid var(--line);background:var(--raised);padding:3px 8px;font-size:13px;min-width:220px}
 .vars{columns:280px;column-gap:18px}
 .vgroup{margin-bottom:8px}
 .vgroup h3{margin-bottom:2px;font-size:12px;break-after:avoid}
@@ -216,32 +254,60 @@ select{border:1px solid var(--line);background:var(--raised);border-radius:4px;p
 .vtab td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .vtab td:first-child{color:var(--ink-2)}
 
+/* ---------- alarmes ---------- */
+.almv{display:grid;gap:6px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+@media (max-width:1200px){.almv{grid-template-columns:minmax(0,1fr)}}
+.atab td{font-size:12px;white-space:nowrap}
+.atab td.desc{white-space:normal}
+.atab td.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.atab tbody tr.click{cursor:pointer}
+.atab tbody tr.click:hover{background:var(--accent-wash)}
+.atab .kind{font:700 10.5px var(--mono);padding:1px 5px;border:1px solid var(--line);background:var(--raised)}
+.atab .st-un{font-weight:700}
+.atab tr.rtn td{color:var(--muted)}
+.lim{margin:8px 0 0;padding-left:18px;font-size:11.5px;color:var(--ink-2)}
+
+/* ---------- barra de alarmes (rodapé fixo) ---------- */
+.almbar{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;gap:6px;background:var(--head);border:1px solid var(--line);border-bottom:0;padding:4px 6px;min-height:40px;margin-top:auto}
+.alm-count{display:flex;flex-direction:column;gap:1px;min-width:118px;padding-right:6px;border-right:1px solid var(--line)}
+.alm-count .lbl{font:700 10.5px var(--sans);letter-spacing:.06em;color:var(--muted)}
+.alm-count .n{display:flex;align-items:center;gap:6px;font:600 12px var(--mono)}
+.alm-list{display:flex;gap:4px;flex:1;min-width:0;overflow:hidden}
+.abtn{display:flex;align-items:center;gap:6px;min-width:0;max-width:300px;flex:0 1 auto;border:1px solid var(--line);border-left:4px solid var(--ab);background:var(--raised);padding:3px 8px 3px 6px;cursor:pointer;text-align:left}
+.abtn.p1{--ab:var(--alm1)}.abtn.p2{--ab:var(--alm2)}.abtn.p3{--ab:var(--alm3)}
+.abtn b{font:700 12px var(--sans);white-space:nowrap}
+.abtn span.d{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abtn.rtn{opacity:.7;border-style:dashed}
+.alm-none{font-size:12px;color:var(--muted);align-self:center;padding-left:4px}
+@media (max-width:640px){.almbar{flex-wrap:wrap}.alm-list{order:3;flex-basis:100%;flex-wrap:wrap}.abtn{max-width:100%}.abtn:nth-child(n+3){display:none}.alm-count{margin-right:auto;border-right:0}}
+
 /* ---------- cenários ---------- */
-.scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:6px}
 .scen{display:flex;flex-direction:column;gap:7px}
-.scen .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.scen .num{font:500 11px var(--mono);color:var(--muted)}
+.scen .card-head{margin-bottom:2px}
+.scen .num{font:11px var(--mono);color:var(--muted)}
 .scen p{margin:0;font-size:12.5px;color:var(--ink-2)}
 .scen ul{margin:0;padding-left:18px;font-size:12.5px;display:flex;flex-direction:column;gap:2px}
-.scen .concept{font-size:12px;color:var(--ink);border-left:2px solid var(--accent);padding-left:8px}
+.scen .concept{font-size:12px;color:var(--ink);border-left:3px solid var(--accent);padding-left:8px}
 .scen .ov{font:11px var(--mono);color:var(--muted)}
 .scen .btn{align-self:flex-start;margin-top:auto}
 .scen.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--plane);padding:7px 14px;border-radius:4px;font-size:13px;z-index:10}
+.toast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);background:var(--ink);color:var(--plane);padding:7px 14px;font-size:13px;z-index:10}
 
 /* ---------- tela cheia (Full HD): tudo cabe sem rolagem ---------- */
 @media (min-width:1401px) and (min-height:800px){
-  .app{height:100vh}
-  [data-panel]{flex:1;min-height:0}
-  .op{height:100%;align-items:stretch;grid-template-rows:minmax(0,1fr)}
+  .app{height:100vh;min-height:0}
+  [data-panel]{flex:1;min-height:0;overflow:auto}
+  .op{height:100%;overflow:hidden;align-items:stretch;grid-template-rows:minmax(0,1fr)}
   .op>.card{display:flex;flex-direction:column;min-height:0}
   .plant-card #plant{flex:1 1 0;min-height:0;height:100%}
   .trend-card .chart-block{flex:1 1 0;min-height:0}
   .trend-card .chart-block.big{flex-grow:1.4}
   .trend-card .chart-wrap,.trend-card .chart-wrap.short{flex:1 1 0;height:auto;min-height:0}
-  .loops-col .loops{flex:1;min-height:0}
-  .loops-col .loop{flex:1 1 0;justify-content:space-between}
+  .fp-col .fps{flex:1;min-height:0;grid-template-rows:minmax(0,1fr)}
+  .fp{min-height:0}
+  .fp-bars{flex:1 1 0;height:auto;min-height:120px}
 }
 </style>
 </head>
@@ -250,23 +316,35 @@ select{border:1px solid var(--line);background:var(--raised);border-radius:4px;p
 <div class="app">
   <header class="topbar">
     <div class="brand">
+      <h1>BANCADA SEIS TANQUES</h1>
       <span class="eyebrow" id="brandSrc">Laboratório de Controle · OpenModelica</span>
-      <h1>Bancada Seis Tanques</h1>
     </div>
     <nav class="tabs" role="tablist" aria-label="Telas">
-      <button class="tab" role="tab" type="button" data-tab="op" aria-selected="true">Operação</button>
-      <button class="tab" role="tab" type="button" data-tab="cfg" aria-selected="false">Configuração</button>
+      <button class="tab" role="tab" type="button" data-tab="op" aria-selected="true">Visão geral</button>
+      <button class="tab" role="tab" type="button" data-tab="cfg" aria-selected="false">Parâmetros</button>
       <button class="tab" role="tab" type="button" data-tab="ana" aria-selected="false">Análise</button>
+      <button class="tab" role="tab" type="button" data-tab="alm" aria-selected="false">Alarmes<span class="tab-n" id="tabAlmN" hidden></span></button>
       <button class="tab" role="tab" type="button" data-tab="scn" aria-selected="false">Cenários</button>
     </nav>
     <div class="run">
       <select id="scenSel" aria-label="Cenário"></select>
-      <button class="btn primary" id="btnRun" type="button">Pausar</button>
+      <button class="btn primary" id="btnRun" type="button">❚❚ Pausar</button>
       <button class="btn" id="btnReset" type="button">Reiniciar</button>
       <div id="speedSeg"></div>
-      <div class="clock"><span class="lbl">t</span><span class="val" id="clock">0 s</span></div>
+    </div>
+    <div class="clocks">
+      <div class="clock" title="Tempo simulado"><span class="lbl">SIM</span><span class="val" id="clock">0 s</span></div>
+      <div class="clock wall"><span class="val" id="wallDate"></span><span class="val" id="wallTime"></span></div>
     </div>
   </header>
+
+  <div class="status" aria-live="polite">
+    <span class="lbl">CENÁRIO</span>
+    <b id="scName"></b>
+    <span class="short" id="scShort"></span>
+    <span class="chips" id="simState"></span>
+    <span class="chips" id="ssGlobal"></span>
+  </div>
 
   <div class="offline" id="offline" hidden>
     <h2 id="offTitle">Servidor do OpenModelica não encontrado</h2>
@@ -275,26 +353,19 @@ select{border:1px solid var(--line);background:var(--raised);border-radius:4px;p
     <p id="offFoot">Depois, abra <code>http://localhost:8000</code>. Detalhes no README.</p>
   </div>
 
-  <div class="banner" aria-live="polite">
-    <b id="scName"></b>
-    <span class="short" id="scShort"></span>
-    <span id="simState"></span>
-    <span id="ssGlobal"></span>
-  </div>
-
-  <!-- ================= OPERAÇÃO ================= -->
+  <!-- ================= VISÃO GERAL ================= -->
   <section class="op" data-panel="op" role="tabpanel">
     <div class="card plant-card">
-      <div class="card-head"><h2>Processo</h2><span class="note">escala dos tanques: 0 a 30 cm</span></div>
-      <svg id="plant" viewBox="0 20 560 672" role="img" aria-label="Diagrama dos seis tanques com bombas, válvulas e vazões"></svg>
-      <div class="card-head" style="margin:6px 0 4px"><h2>Estacionário ≥ <span id="hMinTxt">5</span> cm</h2><span class="note">requisito do trabalho</span></div>
+      <div class="card-head"><h2>Sinótico</h2><span class="note">tanques 0 a 30 cm · clique num tanque para chamar o controlador</span></div>
+      <svg id="plant" viewBox="0 20 560 672" role="img" aria-label="Sinótico dos seis tanques com bombas, válvulas e vazões"></svg>
+      <div class="card-head" style="margin:6px -10px 6px;border-top:1px solid var(--line)"><h2>Regime ≥ <span id="hMinTxt">5</span> cm</h2><span class="note">requisito do trabalho</span></div>
       <div class="ssgrid" id="ssGrid"></div>
     </div>
 
     <div class="card trend-card">
       <div class="card-head">
         <h2>Tendências</h2>
-        <div id="winSeg"></div>
+        <div style="display:flex;gap:8px;align-items:center"><span class="chip trend-mode" id="trendMode">ao vivo</span><div id="winSeg"></div></div>
       </div>
       <div class="chart-block big">
         <div class="chart-title"><h3>Níveis controlados (cm)</h3><div class="legend" id="lg0"></div></div>
@@ -308,20 +379,24 @@ select{border:1px solid var(--line);background:var(--raised);border-radius:4px;p
         <div class="chart-title"><h3>Abertura das válvulas (%)</h3><div class="legend" id="lg2"></div></div>
         <div class="chart-wrap short"><canvas id="c2" aria-label="Saída dos controladores"></canvas><div class="tip" hidden></div></div>
       </div>
+      <div class="tscroll-row">
+        <div class="tscroll" id="tscroll" aria-label="Rolar as tendências no tempo"><div id="tscrollIn"></div></div>
+        <button class="btn small live" id="btnLive" type="button" title="Voltar a acompanhar o instante atual">Ao vivo ▶|</button>
+      </div>
       <div class="trend-foot">
-        <span class="note">Cursor sobre os gráficos mostra os valores. A linha vertical tracejada marca TimeYset (degrau de setpoint).</span>
+        <span class="note">Cursor mostra os valores · barra ou Shift + roda: histórico · tracejado vertical: TimeYset</span>
         <button class="btn small" id="btnCsv" type="button">Copiar dados (CSV)</button>
       </div>
       <textarea class="csv-fallback" id="csvFallback" hidden readonly aria-label="Dados em CSV"></textarea>
     </div>
 
-    <div class="card loops-col">
-      <div class="card-head"><h2>Controladores</h2><span class="note">P.xk = Ck.MV (MF_ST)</span></div>
-      <div class="loops" id="loops"></div>
+    <div class="card fp-col">
+      <div class="card-head"><h2>Controladores</h2><span class="note">PID_ISA · MF_ST</span></div>
+      <div class="fps" id="loops"></div>
     </div>
   </section>
 
-  <!-- ================= CONFIGURAÇÃO ================= -->
+  <!-- ================= PARÂMETROS ================= -->
   <section class="cfg" data-panel="cfg" role="tabpanel" hidden>
     <div class="cfg-col">
       <div class="card">
@@ -336,13 +411,13 @@ select{border:1px solid var(--line);background:var(--raised);border-radius:4px;p
       <div class="card">
         <div class="card-head">
           <h2>Experimento</h2>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
             <button class="btn small" id="btnRestore" type="button">Restaurar valores do cenário</button>
             <button class="btn small" id="btnDefaults" type="button">Voltar aos valores do .mo</button>
           </div>
         </div>
         <div class="row4" id="expList"></div>
-        <p class="note" style="margin:8px 0 0">Tudo nesta aba é parâmetro do <code id="cfgSrc">.mo</code>, lido do modelo compilado. Um ajuste vale na hora: o próximo trecho do OpenModelica já sai com o valor novo, a partir do instante mostrado. Os tanques sempre partem vazios, como no .mo. Valor alterado em relação ao .mo aparece em destaque (•).</p>
+        <p class="note" style="margin:8px 0 0">Tudo nesta tela é parâmetro do <code id="cfgSrc">.mo</code>, lido do modelo compilado. Um ajuste vale na hora: o próximo trecho do OpenModelica já sai com o valor novo, a partir do instante mostrado. Os tanques sempre partem vazios, como no .mo. Valor alterado em relação ao .mo aparece em destaque (•).</p>
       </div>
     </div>
     <div class="card">
@@ -385,19 +460,51 @@ select{border:1px solid var(--line);background:var(--raised);border-radius:4px;p
     </div>
   </section>
 
+  <!-- ================= ALARMES ================= -->
+  <section class="almv" data-panel="alm" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Alarmes ativos</h2><button class="btn small" id="btnAckAll2" type="button">Reconhecer todos</button></div>
+      <table class="ss atab" id="almTable">
+        <thead><tr><th>Prio.</th><th>Hora</th><th>t sim</th><th>Tag</th><th>Tipo</th><th>Descrição</th><th>Estado</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="note" id="almEmpty" style="margin:8px 0 0">Sem alarmes ativos.</p>
+      <ul class="lim">
+        <li>Clique numa linha para reconhecer o alarme. Alarme não reconhecido pisca; alarme que já voltou ao normal fica na lista até ser reconhecido.</li>
+        <li>Os alarmes são da tela, não do .mo: comparam o resultado do OpenModelica com limites de operação.</li>
+        <li id="limList"></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Diário de eventos</h2><span class="note">alarmes, reconhecimentos e ações do operador · últimos 500</span></div>
+      <table class="ss atab" id="evTable">
+        <thead><tr><th>Hora</th><th>t sim</th><th>Tipo</th><th>Tag</th><th>Descrição</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
   <!-- ================= CENÁRIOS ================= -->
   <section data-panel="scn" role="tabpanel" hidden>
     <div class="scen-grid" id="scenGrid"></div>
   </section>
+
+  <footer class="almbar" aria-label="Alarmes">
+    <div class="alm-count"><span class="lbl">ALARMES</span><span class="n" id="almCnt"></span></div>
+    <div class="alm-list" id="almBar" aria-live="polite"></div>
+    <button class="btn" id="btnAckAll" type="button">Reconhecer</button>
+    <button class="btn" id="btnAlmTab" type="button">Lista</button>
+  </footer>
 </div>
 
 <script>
 (() => {
 "use strict";
 const TANK_MAX = 30, HMIN = 5;
-const KEEP = 2400;            // s simulados mantidos na memória (janela máxima de 30 min + folga)
+const KEEP = 7200;            // s simulados mantidos na memória (histórico das tendências)
+const MAX_SAMPLES = 20000;    // ...limitado em amostras: em velocidade baixa o passo é curto e 2 h não caberiam
 const LOOKAHEAD = 1.2;        // s reais de simulação pedidos à frente do instante mostrado
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SP_STEP = 0.5;          // cm por toque em ▲/▼ no faceplate
 
 /* ---------- formatação numérica (pt-BR) ---------- */
 const nf = {};
@@ -408,6 +515,9 @@ const fmt = (v, d = 2) => {
 };
 const fmtG = v => (isFinite(v) ? (Math.abs(v) >= 1e5 || (v !== 0 && Math.abs(v) < 1e-3) ? v.toExponential(3).replace(".", ",") : String(+v.toPrecision(6)).replace(".", ",")) : "—");
 const pct = v => `${fmt(v * 100, 0)} %`;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const hhmmss = d => d.toLocaleTimeString("pt-BR", { hour12: false });
+const fmtClock = t => { const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60); return h ? `${h} h ${String(m).padStart(2, "0")} min` : m ? `${m} min ${String(s).padStart(2, "0")} s` : `${s} s`; };
 function chip(parent, cls, text) { const c = document.createElement("span"); c.className = "chip " + cls; c.textContent = text; parent.appendChild(c); return c; }
 function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
 
@@ -428,6 +538,7 @@ const loops = [
   { tag: "LIC-04", mo: "C4", h: "h4", sp: "h4sp" },
 ];
 const VALVE_TAG = ["FV-01", "FV-02", "FV-03", "FV-04"]; // P.x1..P.x4, tags da bancada (ímpar: FV-01 entra, FV-03 sai de T3; par: FV-02 entra, FV-04 sai de T4)
+const tankTag = k => (k <= 4 ? loops[k - 1].tag : `LI-0${k}`); // T1..T4 têm controlador; T5 e T6 só indicação
 
 /* ---------- cenários: só parâmetros do MF_ST ---------- */
 // Os números citados foram lidos das simulações do OpenModelica com estes mesmos parâmetros (tanques partindo vazios).
@@ -508,7 +619,8 @@ const stepFor = s => Math.min(2, Math.max(0.1, s / 60));
 function emptyBuf() { return { t: [], tr: [], st: [], v: {}, lastBad: 0 }; }
 function restart() {
   gen++; buf = emptyBuf(); tCur = 0; iCur = 0; halted = false; stalled = false;
-  hideOffline(); buildVarsPending = true;
+  hideOffline(); buildVarsPending = true; follow = true;
+  resetAlarms();
 }
 // Descarta o que já foi calculado depois do instante mostrado; o próximo trecho parte dali com os parâmetros atuais.
 function paramsChanged() {
@@ -530,14 +642,19 @@ async function fetchChunk() {
   const body = { parametros: { ...overrides }, de, duracao: Math.max(5, speed * LOOKAHEAD), passo: stepFor(speed) };
   try {
     const d = await api("api/trecho", body);
-    if (d.hash !== modelo.hash) { await loadModel(); toast("O .mo mudou: o OpenModelica recompilou o modelo. Simulação reiniciada."); restart(); return; }
+    if (d.hash !== modelo.hash) {
+      await loadModel(); toast("O .mo mudou: o OpenModelica recompilou o modelo. Simulação reiniciada.");
+      logEv("SIS", "OMC", "O .mo mudou: modelo recompilado, simulação reiniciada"); restart(); return;
+    }
     if (g !== gen) return; // parâmetros mudaram durante o pedido: este trecho não vale mais
     append(d);
     lastInfo = d; hideOffline();
   } catch (e) {
     if (g !== gen) return;
-    if (e.reiniciar) { toast(`${e.message} Simulação reiniciada.`); try { await loadModel(); } catch (e2) { failed(e2); } restart(); }
-    else failed(e);
+    if (e.reiniciar) {
+      toast(`${e.message} Simulação reiniciada.`); logEv("SIS", "OMC", `${e.message} Simulação reiniciada.`);
+      try { await loadModel(); } catch (e2) { failed(e2); } restart();
+    } else failed(e);
   } finally {
     pending = false;
   }
@@ -564,8 +681,8 @@ function append(d) {
   if (buildVarsPending) buildVars();
 }
 function trimOld() {
-  if (!buf || !buf.t.length || buf.t[0] >= tCur - KEEP) return;
-  const cut = lowerBound(buf.t, tCur - KEEP);
+  if (!buf || !buf.t.length || (buf.t[0] >= tCur - KEEP && buf.t.length <= MAX_SAMPLES)) return;
+  const cut = Math.max(lowerBound(buf.t, tCur - KEEP), buf.t.length - MAX_SAMPLES);
   if (cut <= 0) return;
   buf.t.splice(0, cut); buf.tr.splice(0, cut); buf.st.splice(0, cut);
   for (const k in buf.v) buf.v[k].splice(0, cut);
@@ -579,8 +696,85 @@ function locate() {
   iCur = j;
 }
 const val = name => (buf && buf.v[name] && buf.t.length ? buf.v[name][iCur] : NaN);
+const simNow = () => (buf && buf.t.length ? buf.t[iCur] : 0);
+const steadyNow = () => !!(buf && buf.st.length && buf.st[iCur]);
 
-/* ---------- diagrama ---------- */
+/* ---------- alarmes e diário de eventos ---------- */
+// Alarmes da tela: comparam o resultado do OpenModelica com limites de operação. Nada disso entra no .mo.
+// Cada alarme: ativo (condição verdadeira há "delay" s simulados) e reconhecido ou não. Com "hold", depois de ativo
+// ele só sai quando hold() fica falso (ex.: LO entra em regime, mas um transitório não basta para limpá-lo).
+// Um alarme que volta ao normal sem ser reconhecido continua na lista até o reconhecimento.
+// Os tanques partem vazios: na partida as válvulas saturam de propósito, então MHI/MLO só valem depois de STARTUP.
+const H_HI = 0.9 * TANK_MAX, DEV_MAX = 1, SAT_DELAY = 60, STARTUP = 600;
+const pastStartup = () => simNow() > STARTUP || steadyNow();
+const ALM = [];
+function alarm(tag, code, desc, prio, cond, delay = 0, hold = null) {
+  ALM.push({ id: `${tag}.${code}`, tag, code, desc, prio, cond, delay, hold, on: false, ack: true, since: null, tIn: 0, wIn: null });
+}
+for (let k = 1; k <= 6; k++) {
+  const tg = tankTag(k), h = `h${k}`;
+  alarm(tg, "HH", `Nível muito alto em T${k}: transbordo (> ${TANK_MAX} cm)`, 1, () => val(h) > TANK_MAX);
+  alarm(tg, "HI", `Nível alto em T${k} (> ${fmt(H_HI, 0)} cm)`, 2, () => val(h) > H_HI);
+  alarm(tg, "LO", `Nível de T${k} abaixo de ${HMIN} cm em regime`, 2, () => steadyNow() && val(h) < HMIN, 0, () => val(h) < HMIN);
+}
+loops.forEach((L, k) => {
+  const dev = () => Math.abs(val(`${L.mo}.PV`) - val(`${L.mo}.SP`)) > DEV_MAX;
+  alarm(L.tag, "DV", `Desvio |PV − SP| > ${fmt(DEV_MAX, 0)} cm em regime`, 2, () => steadyNow() && dev(), 0, dev);
+  alarm(VALVE_TAG[k], "MHI", `${VALVE_TAG[k]} saturada em 100 % (${L.tag})`, 2, () => pastStartup() && val(`${L.mo}.MV`) >= 0.999, SAT_DELAY);
+  alarm(VALVE_TAG[k], "MLO", `${VALVE_TAG[k]} fechada em 0 % (${L.tag})`, 3, () => pastStartup() && val(`${L.mo}.MV`) <= 0.001, SAT_DELAY);
+});
+alarm("OMC", "COM", "OpenModelica sem resposta ou com erro", 1, () => halted);
+alarm("OMC", "AVS", "OpenModelica: avisos no último trecho", 3, () => !!(lastInfo && lastInfo.avisos.length));
+document.getElementById("limList").textContent =
+  `Limites: HH > ${TANK_MAX} cm (prio. 1); HI > ${fmt(H_HI, 0)} cm; LO < ${HMIN} cm e DV > ${fmt(DEV_MAX, 0)} cm só em regime; ` +
+  `MHI (100 %) e MLO (0 %, prio. 3) depois de ${SAT_DELAY} s simulados, suprimidos na partida (primeiros ${STARTUP / 60} min ou até o regime).`;
+
+const journal = [];
+let journalDirty = true, alarmsDirty = true;
+function logEv(kind, tag, text, prio = 0) {
+  journal.unshift({ w: new Date(), t: simNow(), kind, tag, text, prio });
+  if (journal.length > 500) journal.length = 500;
+  journalDirty = true;
+}
+function evalAlarms() {
+  const t = simNow();
+  ALM.forEach(a => {
+    const c = !!a.cond();
+    if (!c) a.since = null; else if (a.since == null) a.since = t;
+    const want = a.on && a.hold ? !!a.hold() : c && t - a.since >= a.delay;
+    if (want && !a.on) { a.on = true; a.ack = false; a.tIn = t; a.wIn = new Date(); alarmsDirty = true; logEv("ALM", a.tag, `${a.code} · ${a.desc}`, a.prio); }
+    else if (!want && a.on) { a.on = false; alarmsDirty = true; logEv("RTN", a.tag, `${a.code} · voltou ao normal`, a.prio); }
+  });
+}
+function resetAlarms() { ALM.forEach(a => { a.on = false; a.ack = true; a.since = null; }); alarmsDirty = true; }
+const shownAlarms = () => ALM.filter(a => a.on || !a.ack).sort((a, b) => a.prio - b.prio || a.ack - b.ack || b.tIn - a.tIn);
+function ack(a) {
+  if (a.ack) return;
+  a.ack = true; alarmsDirty = true;
+  logEv("ACK", a.tag, `${a.code} · reconhecido`, a.prio);
+}
+function ackAll() { ALM.forEach(ack); renderAlarms(); }
+// pior alarme (visível) entre as tags: { prio, ack } ou null
+function worstFor(tags) {
+  let best = null;
+  for (const a of ALM) {
+    if (!(a.on || !a.ack) || !tags.includes(a.tag)) continue;
+    if (!best || a.prio < best.prio) best = { prio: a.prio, ack: a.ack };
+    else if (a.prio === best.prio && !a.ack) best.ack = false;
+  }
+  return best;
+}
+function setIndH(e, w) {
+  const key = w ? `${w.prio}${w.ack ? "" : "u"}` : "";
+  if (e.dataset.key === key) return;
+  e.dataset.key = key;
+  e.className = w ? `ind-h p${w.prio}${w.ack ? "" : " unack"}` : "ind-h";
+  e.textContent = w ? w.prio : "";
+  e.hidden = !w;
+}
+function indH(w) { const s = document.createElement("span"); setIndH(s, w); return s; }
+
+/* ---------- sinótico ---------- */
 const svg = document.getElementById("plant");
 const NS = "http://www.w3.org/2000/svg";
 function el(tag, attrs, parent = svg) {
@@ -597,9 +791,10 @@ const TANKS = [
   { name: "T3", h: "h3", x: 130, y: 240, c: "--s3", loop: 2 }, { name: "T4", h: "h4", x: 330, y: 240, c: "--s4", loop: 3 },
   { name: "T5", h: "h5", x: 130, y: 70, c: "--s5", loop: -1 }, { name: "T6", h: "h6", x: 330, y: 70, c: "--s6", loop: -1 },
 ];
-// Canos no sentido do escoamento. "v" é a variável do .mo com a vazão (cm³/s).
+TANKS.forEach((t, i) => (t.tag = tankTag(i + 1)));
+// Canos no sentido do escoamento. "v" é a variável do .mo com a vazão (cm³/s): cano com vazão fica escuro.
 // As descargas por gravidade são as variáveis q1, q2, q5 e q6 (desde a v11). "h" é só o reserva para um .mo sem elas:
-// aí a animação tem velocidade fixa e indica apenas que o tanque de origem tem água.
+// aí o cano escurece quando o tanque de origem tem água.
 const PIPES = [
   { d: "M280 612 V629", v: "P.F_bomba_inicial" },                                // sucção da B-01
   { d: "M269 640 H46 V210", v: "P.F1" },                                         // ramo 1 (FV-01)
@@ -613,10 +808,10 @@ const PIPES = [
   { d: "M380 170 V240", v: "P.q6", h: "h6", end: true },                        // T6 → T4
   { d: "M180 340 V355", v: "P.F3" }, { d: "M180 377 V392", v: "P.F3" },          // sucção e recalque da B-03
   { d: "M180 392 V440", v: "P.F3_valvula_controle", end: true },                 // FV-03 → T1
-  { d: "M180 392 H254 V222 H212 V240", v: "P.F3_refluxo", end: true },           // refluxo de T3
+  { d: "M180 392 H254 V210 H212 V240", v: "P.F3_refluxo", end: true },           // refluxo de T3
   { d: "M380 340 V355", v: "P.F4" }, { d: "M380 377 V392", v: "P.F4" },
   { d: "M380 392 V440", v: "P.F4_valvula_controle", end: true },                 // FV-04 → T2
-  { d: "M380 392 H306 V222 H348 V240", v: "P.F4_refluxo", end: true },           // refluxo de T4
+  { d: "M380 392 H306 V210 H348 V240", v: "P.F4_refluxo", end: true },           // refluxo de T4
   { d: "M180 540 V580", v: "P.q1", h: "h1", end: true },                        // T1 → reservatório
   { d: "M380 540 V580", v: "P.q2", h: "h2", end: true },                        // T2 → reservatório
 ];
@@ -628,13 +823,31 @@ const PIPES = [
 PIPES.forEach(p => {
   const g = el("g", {});
   if (p.halo) el("path", { d: p.halo, class: "halo" }, g);
-  const base = el("path", { d: p.d, class: "pipe" }, g);
-  if (p.end) base.setAttribute("marker-end", "url(#arr)");
-  p.flowEl = el("path", { d: p.d, class: "flow" }, g);
-  p.off = 0;
+  p.base = el("path", { d: p.d, class: "pipe" }, g);
+  if (p.end) p.base.setAttribute("marker-end", "url(#arr)");
 });
 el("rect", { x: 110, y: 580, width: 340, height: 32, class: "res", rx: 3 });
 el("text", { x: 280, y: 601, class: "t-small t-mid" }).textContent = "Reservatório";
+// indicador de alarme no sinótico: quadrado (1), triângulo (2) ou losango (3), piscando enquanto não reconhecido
+const IND_SHAPE = { 1: "M0 0 H14 V14 H0 Z", 2: "M7 0 L14 14 H0 Z", 3: "M7 0 L14 7 L7 14 L0 7 Z" };
+function almInd(parent, x, y) {
+  const g = el("g", { class: "ind", transform: `translate(${x} ${y})` }, parent);
+  const shape = el("path", {}, g);
+  const txt = el("text", { x: 7, y: 11 }, g);
+  g.style.display = "none";
+  let key = "";
+  return w => {
+    const k = w ? `${w.prio}${w.ack ? "" : "u"}` : "";
+    if (k === key) return;
+    key = k;
+    g.style.display = w ? "" : "none";
+    if (!w) return;
+    shape.setAttribute("d", IND_SHAPE[w.prio]);
+    txt.setAttribute("y", w.prio === 2 ? 12.5 : 11);
+    txt.textContent = w.prio;
+    g.setAttribute("class", `ind p${w.prio}${w.ack ? "" : " unack"}`);
+  };
+}
 TANKS.forEach(t => {
   const g = el("g", {});
   t.wall = el("rect", { x: t.x, y: t.y, width: TW, height: TH, class: "tank-wall", rx: 2 }, g);
@@ -643,11 +856,16 @@ TANKS.forEach(t => {
   if (t.loop >= 0) {
     t.sp = el("line", { x1: t.x, x2: t.x + TW, class: "spline" }, g);
     t.spm = el("path", { class: "spmark" }, g);
+    g.setAttribute("class", "tank-hit");
+    g.addEventListener("click", () => selectLoop(t.loop, true));
+    el("title", {}, g).textContent = `${t.name} · ${t.tag}: clique para chamar o controlador`;
   }
   el("rect", { x: t.x + 1, y: t.y + 1, width: TW - 2, height: 20, class: "tank-head" }, g);
   el("rect", { x: t.x + 5, y: t.y + 5, width: 3.5, height: 12, rx: 1 }, g).style.fill = `var(${t.c})`;
   el("text", { x: t.x + 12, y: t.y + 16, class: "t-tag" }, g).textContent = t.name;
   t.val = el("text", { x: t.x + TW - 5, y: t.y + 16, class: "t-val", "text-anchor": "end" }, g);
+  t.ind = almInd(g, t.x - 19, t.y + 3);
+  t.wc = "";
 });
 function pump(cx, cy, label, lx, ly, anchor) {
   const g = el("g", {});
@@ -667,7 +885,7 @@ function valve(cx, cy, label, lx, anchor) {
   const poly = el("path", { d: `M${cx - 8} ${cy - 9} H${cx + 8} L${cx - 8} ${cy + 9} H${cx + 8} Z`, class: "valve" }, g);
   el("text", { x: lx, y: cy - 1, class: "t-tag", "text-anchor": anchor }, g).textContent = label;
   const v = el("text", { x: lx, y: cy + 13, class: "t-small", "text-anchor": anchor }, g);
-  return { poly, v };
+  return { poly, v, wc: "" };
 }
 // índice = P.x1..P.x4
 const valves = [
@@ -690,16 +908,17 @@ el("text", { x: 505, y: 292, class: "t-tag", "text-anchor": "end" }).textContent
 const f1Lbl = el("text", { x: 55, y: 306, class: "t-small" });
 const f2Lbl = el("text", { x: 505, y: 306, class: "t-small", "text-anchor": "end" });
 
-function drawPlant(realDt) {
+function drawPlant() {
   const inner = TH - 22;
   const yOf = (t, h) => t.y + TH - 1 - Math.max(0, Math.min(TANK_MAX, h)) / TANK_MAX * inner;
-  const steady = buf && buf.st.length ? buf.st[iCur] : false;
   TANKS.forEach(t => {
     const h = val(t.h);
     const top = yOf(t, isFinite(h) ? h : 0);
     t.liq.setAttribute("y", top.toFixed(1));
     t.liq.setAttribute("height", Math.max(0, t.y + TH - 1 - top).toFixed(1));
-    t.wall.classList.toggle("alarm", (steady && h < HMIN) || h > TANK_MAX || h < -0.05);
+    const w = worstFor([t.tag]), wc = w ? `a${w.prio}` : "";
+    if (wc !== t.wc) { t.wall.setAttribute("class", `tank-wall ${wc}`); t.wc = wc; }
+    t.ind(w);
     const yl = yOf(t, HMIN).toFixed(1);
     t.lo.setAttribute("y1", yl); t.lo.setAttribute("y2", yl);
     t.val.textContent = !isFinite(h) ? "—" : h < -0.05 ? `${fmt(h, 1)} cm !` : h <= 0.05 ? "vazio" : h > TANK_MAX ? `${fmt(h, 1)} ↑` : `${fmt(h, 2)} cm`;
@@ -713,14 +932,9 @@ function drawPlant(realDt) {
   });
   PIPES.forEach(p => {
     let F = p.v ? val(p.v) : NaN;
-    if (!isFinite(F) && p.h) F = val(p.h) > 0.05 ? 10 : 0; // .mo sem a variável de descarga: velocidade fixa
+    if (!isFinite(F) && p.h) F = val(p.h) > 0.05 ? 10 : 0; // .mo sem a variável de descarga
     const on = F > 0.05;
-    p.flowEl.style.display = on ? "" : "none";
-    if (on && !reduceMotion && running) {
-      p.off -= realDt * (8 + F * 0.9);
-      if (p.off < -1200) p.off += 1200;
-      p.flowEl.setAttribute("stroke-dashoffset", p.off.toFixed(1));
-    }
+    if (on !== p.on) { p.base.classList.toggle("on", on); p.on = on; }
   });
   const setPump = (pp, rot, extra = "") => {
     pp.body.style.fill = rot > 0 ? "var(--equip)" : "var(--chart)";
@@ -732,8 +946,9 @@ function drawPlant(realDt) {
   setPump(pumps.p4, pv("rot_bomba4_bias"));
   valves.forEach((vv, i) => {
     const o = val(`P.x${i + 1}`);
-    vv.poly.style.fill = isFinite(o) ? `color-mix(in srgb, var(--equip) ${Math.round(Math.max(0, Math.min(1, o)) * 100)}%, var(--chart))` : "var(--chart)";
-    vv.poly.classList.toggle("sat", o <= 0.001 || o >= 0.999);
+    vv.poly.style.fill = isFinite(o) ? `color-mix(in srgb, var(--equip) ${Math.round(clamp01(o) * 100)}%, var(--chart))` : "var(--chart)";
+    const w = worstFor([VALVE_TAG[i]]), wc = w ? `a${w.prio}` : "";
+    if (wc !== vv.wc) { vv.poly.setAttribute("class", `valve ${wc}`); vv.wc = wc; }
     vv.v.textContent = isFinite(o) ? `${fmt(o * 100, 0)} %` : "";
   });
   f1Lbl.textContent = fmt(val("P.F1"), 1);
@@ -770,20 +985,20 @@ function updateSS() {
   const low = lowTanks();
   let cls = "", txt = "";
   if (has && !steady) txt = "em transitório";
-  else if (has && low.length) { cls = "crit"; txt = `estacionário: ${low.join(", ")} abaixo de ${HMIN} cm`; }
-  else if (has) { cls = "good"; txt = `estacionário: todos acima de ${HMIN} cm`; }
+  else if (has && low.length) { cls = "crit"; txt = `regime: ${low.join(", ")} abaixo de ${HMIN} cm`; }
+  else if (has) { cls = "good"; txt = `regime: todos acima de ${HMIN} cm`; }
   const key = cls + txt;
   if (ssGlobal.dataset.key !== key) { ssGlobal.dataset.key = key; ssGlobal.textContent = ""; if (txt) chip(ssGlobal, cls, txt); }
 }
 
-/* ---------- estado da simulação (faixa) ---------- */
+/* ---------- estado da simulação (barra de estado) ---------- */
 const simState = document.getElementById("simState");
 function updateSimState() {
   const key = [lastInfo && lastInfo.segundos, lastInfo && lastInfo.avisos.length, stalled, Object.keys(overrides).length].join("|");
   if (simState.dataset.key === key) return;
   simState.dataset.key = key; simState.textContent = "";
   if (lastInfo) {
-    chip(simState, "", `OpenModelica · trecho em ${fmt(lastInfo.segundos * 1000, 0)} ms`);
+    chip(simState, "good", `OpenModelica · trecho em ${fmt(lastInfo.segundos * 1000, 0)} ms`);
     if (lastInfo.avisos.length) chip(simState, "warn", `${lastInfo.avisos.length} aviso${lastInfo.avisos.length > 1 ? "s" : ""}`).title = lastInfo.avisos.join("\n");
   } else chip(simState, "", "OpenModelica compilando o modelo…");
   if (stalled) chip(simState, "warn", "aguardando o OpenModelica");
@@ -796,16 +1011,16 @@ const cssv = {};
 function readTheme() {
   const cs = getComputedStyle(document.documentElement);
   cssv.monoFont = cs.getPropertyValue("--mono").trim();
-  ["--ink", "--ink-2", "--muted", "--hair", "--line", "--chart", "--crit", "--s1", "--s2", "--s3", "--s4", "--s5", "--s6"].forEach(k => (cssv[k] = cs.getPropertyValue(k).trim()));
+  ["--ink", "--ink-2", "--muted", "--hair", "--line", "--chart", "--crit", "--trend", "--trend-grid", "--trend-base", "--trend-text", "--s1", "--s2", "--s3", "--s4", "--s5", "--s6"].forEach(k => (cssv[k] = cs.getPropertyValue(k).trim()));
 }
 const CHARTS = [
   {
     id: "c0", legend: "lg0",
-    series: [0, 1, 2, 3].map(k => ({ f: `h${k + 1}`, c: `--s${k + 1}`, label: `h${k + 1}` })),
+    series: [0, 1, 2, 3].map(k => ({ f: `h${k + 1}`, c: `--s${k + 1}`, label: loops[k].tag, sub: `h${k + 1}` })),
     sp: [0, 1, 2, 3].map(k => ({ f: `C${k + 1}.SP`, c: `--s${k + 1}` })),
     unit: "cm", dec: 2, lo: true,
   },
-  { id: "c1", legend: "lg1", series: [{ f: "h5", c: "--s5", label: "h5" }, { f: "h6", c: "--s6", label: "h6" }], unit: "cm", dec: 2, lo: true },
+  { id: "c1", legend: "lg1", series: [5, 6].map(k => ({ f: `h${k}`, c: `--s${k}`, label: tankTag(k), sub: `h${k}` })), unit: "cm", dec: 2, lo: true },
   { id: "c2", legend: "lg2", series: [0, 1, 2, 3].map(k => ({ f: `C${k + 1}.MV`, k: 100, c: `--s${k + 1}`, label: VALVE_TAG[k], sub: loops[k].mo })), fixed: [0, 100], unit: "%", dec: 0 },
 ];
 function buildLegends() {
@@ -863,10 +1078,10 @@ function drawChart(ch, ci) {
   const pw = W - m.l - m.r, ph = H - m.t - m.b;
   const has = buf && buf.t.length;
   const tNow = has ? buf.t[iCur] : 0;
-  const tEnd = Math.max(tNow, win), t0 = tEnd - win;
+  const tEnd = Math.max(viewEnd(), win), t0 = tEnd - win;
   const T = has ? buf.t : [];
   const get = (s, i) => buf.v[s.f] ? buf.v[s.f][i] * (s.k || 1) : NaN;
-  const i0 = has ? Math.max(0, lowerBound(T, t0) - 1) : 0, i1 = has ? iCur + 1 : 0;
+  const i0 = has ? Math.max(0, lowerBound(T, t0) - 1) : 0, i1 = has ? Math.max(1, Math.min(iCur + 1, lowerBound(T, tEnd + 1e-9))) : 0;
   let y0 = 0, y1;
   if (ch.fixed) [y0, y1] = ch.fixed;
   else {
@@ -884,9 +1099,9 @@ function drawChart(ch, ci) {
   ctx.lineWidth = 1;
   for (let v = y0; v <= y1 + 1e-9; v += ys) {
     const yy = Math.round(Y(v)) + 0.5;
-    ctx.strokeStyle = v === y0 ? cssv["--line"] : cssv["--hair"];
+    ctx.strokeStyle = v === y0 ? cssv["--trend-base"] : cssv["--trend-grid"];
     ctx.beginPath(); ctx.moveTo(m.l, yy); ctx.lineTo(m.l + pw, yy); ctx.stroke();
-    ctx.fillStyle = cssv["--muted"]; ctx.textAlign = "right";
+    ctx.fillStyle = cssv["--trend-text"]; ctx.textAlign = "right";
     ctx.fillText(fmt(v, ys < 1 ? 1 : 0), m.l - 6, yy);
   }
   // eixo do tempo em minutos: passo "redondo" em minutos, convertido para segundos
@@ -894,17 +1109,17 @@ function drawChart(ch, ci) {
   ctx.textAlign = "center"; ctx.textBaseline = "top";
   for (let t = Math.ceil(t0 / xs) * xs; t <= tEnd + 1e-9; t += xs) {
     const xx = Math.round(X(t)) + 0.5;
-    ctx.strokeStyle = cssv["--hair"];
+    ctx.strokeStyle = cssv["--trend-grid"];
     ctx.beginPath(); ctx.moveTo(xx, m.t); ctx.lineTo(xx, m.t + ph); ctx.stroke();
-    ctx.fillStyle = cssv["--muted"];
+    ctx.fillStyle = cssv["--trend-text"];
     ctx.fillText(`${fmt(t / 60, xd)} min`, xx, m.t + ph + 4);
   }
   if (!has) return;
   // instante do degrau de setpoint (parâmetro TimeYset do MF_ST)
   const ty = pv("TimeYset");
-  if (isFinite(ty) && ty <= tNow && ty >= t0) {
+  if (isFinite(ty) && ty <= Math.min(tNow, tEnd) && ty >= t0) {
     const xx = Math.round(X(ty)) + 0.5;
-    ctx.setLineDash([3, 3]); ctx.strokeStyle = cssv["--muted"];
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = cssv["--trend-text"];
     ctx.beginPath(); ctx.moveTo(xx, m.t); ctx.lineTo(xx, m.t + ph); ctx.stroke();
     ctx.setLineDash([]);
     if (ci === 0) { ctx.fillStyle = cssv["--ink-2"]; ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.fillText("TimeYset", xx + 4, 1); }
@@ -943,7 +1158,7 @@ function drawChart(ch, ci) {
     ctx.fillStyle = cssv["--ink-2"];
     ctx.fillText(`${l.s.label} ${fmt(l.v, ch.dec === 0 ? 0 : 1)}`, m.l + pw + 17, l.y);
     const yy = Y(l.v);
-    ctx.beginPath(); ctx.arc(xe, yy, 3.5, 0, 7); ctx.fillStyle = cssv["--chart"]; ctx.fill();
+    ctx.beginPath(); ctx.arc(xe, yy, 3.5, 0, 7); ctx.fillStyle = cssv["--trend"]; ctx.fill();
     ctx.beginPath(); ctx.arc(xe, yy, 2.5, 0, 7); ctx.fillStyle = cssv[l.s.c]; ctx.fill();
   });
   if (hover) {
@@ -953,11 +1168,11 @@ function drawChart(ch, ci) {
     if (j > 0 && Math.abs(T[j - 1] - tH) < Math.abs(T[j] - tH)) j--;
     if (j >= i0 && T[j] >= t0 - 1) {
       const xx = Math.round(X(T[j])) + 0.5;
-      ctx.strokeStyle = cssv["--muted"]; ctx.lineWidth = 1;
+      ctx.strokeStyle = cssv["--trend-text"]; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(xx, m.t); ctx.lineTo(xx, m.t + ph); ctx.stroke();
       ch.series.forEach(s => {
         const yy = Y(get(s, j));
-        ctx.beginPath(); ctx.arc(xx, yy, 5, 0, 7); ctx.fillStyle = cssv["--chart"]; ctx.fill();
+        ctx.beginPath(); ctx.arc(xx, yy, 5, 0, 7); ctx.fillStyle = cssv["--trend"]; ctx.fill();
         ctx.beginPath(); ctx.arc(xx, yy, 3.5, 0, 7); ctx.fillStyle = cssv[s.c]; ctx.fill();
       });
       if (hover.ci === ci) {
@@ -976,6 +1191,47 @@ function drawChart(ch, ci) {
     }
   } else ch.tip.hidden = true;
 }
+
+/* ---------- rolagem das tendências no tempo ---------- */
+// Ao vivo, a janela termina no instante mostrado. Rolando para trás, ela fica parada em tView (s simulados)
+// enquanto a simulação continua; voltar a barra até o fim (ou "Ao vivo") retoma o acompanhamento.
+const tscroll = document.getElementById("tscroll"), tscrollIn = document.getElementById("tscrollIn");
+const btnLive = document.getElementById("btnLive"), trendMode = document.getElementById("trendMode");
+let follow = true, tView = 0, lastSl = -1;
+const tFirst = () => (buf && buf.t.length ? buf.t[0] : 0);
+const viewEnd = () => (follow ? simNow() : Math.min(tView, simNow()));
+function syncScroll() {
+  const now = simNow(), span = Math.max(win, now - tFirst());
+  const cw = tscroll.clientWidth || 1;
+  tscrollIn.style.width = `${Math.round(cw * span / win)}px`;
+  const max = tscroll.scrollWidth - cw;
+  if (!follow) tView = Math.max(tFirst() + win, Math.min(tView, now));
+  const sl = follow || span <= win ? max : Math.round((tView - tFirst() - win) / (span - win) * max);
+  if (Math.abs(tscroll.scrollLeft - sl) >= 1) tscroll.scrollLeft = sl;
+  lastSl = tscroll.scrollLeft;
+  const key = follow ? "live" : `${Math.round(tView)}`;
+  if (trendMode.dataset.key !== key) {
+    trendMode.dataset.key = key;
+    trendMode.classList.toggle("hist", !follow);
+    trendMode.textContent = follow ? "ao vivo" : `histórico · até ${fmt(tView / 60, 1)} min`;
+    btnLive.classList.toggle("live", follow);
+  }
+}
+tscroll.addEventListener("scroll", () => {
+  if (Math.abs(tscroll.scrollLeft - lastSl) < 1) return; // eco do próprio syncScroll
+  const max = tscroll.scrollWidth - tscroll.clientWidth;
+  const span = Math.max(win, simNow() - tFirst());
+  if (tscroll.scrollLeft >= max - 1) follow = true;
+  else { follow = false; tView = tFirst() + win + tscroll.scrollLeft / Math.max(1, max) * (span - win); }
+  lastSl = tscroll.scrollLeft;
+});
+btnLive.addEventListener("click", () => (follow = true));
+document.querySelectorAll(".trend-card .chart-wrap").forEach(w => w.addEventListener("wheel", e => {
+  const dx = e.shiftKey ? e.deltaY || e.deltaX : Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : 0;
+  if (!dx) return;
+  e.preventDefault();
+  tscroll.scrollLeft += dx;
+}, { passive: false }));
 
 /* ---------- componentes ---------- */
 function sliderRow(parent, { id, label, sym, min, max, step, hint }) {
@@ -1010,11 +1266,11 @@ function setParam(nome, x) {
   if (!isFinite(x) || Math.abs(x - p.valor) <= 1e-9 * Math.max(1, Math.abs(p.valor))) delete overrides[nome]; else overrides[nome] = x;
 }
 let controls = [];
-// spec: { label, sym, params, min, max, step, show, hint, get?, set? }
+// spec: { label, sym, params, min, max, step, show, hint, tag?, get?, set? }
 function paramSlider(parent, spec) {
   const params = spec.params.filter(n => def(n));
   if (!params.length) return null;
-  const s = sliderRow(parent, { id: `p_${params[0]}`, label: spec.label, sym: spec.sym, min: spec.min, max: spec.max, step: spec.step, hint: spec.hint });
+  const s = sliderRow(parent, { id: `p_${params[0]}${spec.tag ? "_" + spec.tag : ""}`, label: spec.label, sym: spec.sym, min: spec.min, max: spec.max, step: spec.step, hint: spec.hint });
   const get = spec.get || (() => pv(params[0]));
   const c = {
     params,
@@ -1027,10 +1283,17 @@ function paramSlider(parent, spec) {
       s.w.title = `${params.join(", ")} · valor do .mo: ${params.map(n => fmtG(def(n).valor)).join(", ")}`;
     },
   };
+  // o diário registra o ajuste inteiro (valor de antes → valor final), não cada passo do arraste
+  let before = null;
   s.i.addEventListener("input", () => {
+    if (before == null) before = get();
     const x = +s.i.value;
     if (spec.set) spec.set(x); else params.forEach(n => setParam(n, x));
     paramsChanged();
+  });
+  s.i.addEventListener("change", () => {
+    if (before != null) logEv("OPR", spec.tag || spec.sym || params[0], `${spec.label}: ${spec.show(before)} → ${spec.show(get())}`);
+    before = null;
   });
   controls.push(c); c.upd();
   return c;
@@ -1074,55 +1337,104 @@ const EXP = [
   { label: "Instante dos degraus de setpoint", sym: "TimeYset", params: ["TimeYset"], min: 0, max: 6000, step: 10, show: sec },
 ];
 
-/* --- cartões dos controladores na aba Operação --- */
-const loopsEl = document.getElementById("loops");
+/* --- faceplates dos controladores na Visão geral --- */
+// PV e SP numa barra de 0 a TANK_MAX, MV numa barra de 0 a 100 %. O SP digitado (Enter) ou ajustado em ▲/▼
+// vai para o parâmetro hNsp_bias; depois de TimeYset o degrau já está somado, então ele é descontado.
+const fpsEl = document.getElementById("loops");
 const loopUI = loops.map((L, k) => {
-  const card = document.createElement("div"); card.className = "loop";
-  const head = document.createElement("div"); head.className = "loop-head";
-  const key = document.createElement("span"); key.className = "key"; key.style.setProperty("--c", `var(--s${k + 1})`);
-  const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = L.tag;
-  const badge = document.createElement("span"); badge.className = "badge";
-  const desc = document.createElement("span"); desc.className = "desc"; desc.textContent = `${L.h} → ${VALVE_TAG[k]}`;
-  const chips = document.createElement("span");
-  head.append(key, tag, badge, desc, chips);
-  const ro = document.createElement("div"); ro.className = "readout";
-  const cell = name => { const d = document.createElement("div"); const a = document.createElement("span"); a.className = "k"; a.textContent = name; const v = document.createElement("span"); v.className = "v"; d.append(a, v); ro.appendChild(d); return v; };
-  const pvC = cell(`${L.mo}.PV`), spC = cell(`${L.mo}.SP`), mvC = cell(`${L.mo}.MV`);
-  const spBox = document.createElement("div");
-  const tl = document.createElement("div"); tl.className = "tune-line";
-  const params = document.createElement("span"); params.className = "params";
-  const adj = document.createElement("button"); adj.type = "button"; adj.className = "btn small"; adj.textContent = "Ajustar";
-  adj.addEventListener("click", () => showTab("cfg"));
-  tl.append(params, adj);
-  card.append(head, ro, spBox, tl);
-  loopsEl.appendChild(card);
-  return { badge, pvC, spC, mvC, params, spBox, chips, key: "" };
+  const d = document.createElement("div"); d.className = "fp";
+  const ticks = [TANK_MAX, TANK_MAX * 2 / 3, TANK_MAX / 3, 0].map((v, i) => `<span style="top:${i * 100 / 3}%">${fmt(v, 0)}</span>`).join("");
+  d.innerHTML = `
+    <div class="fp-head"><span class="key" style="--c:var(--s${k + 1})"></span><span class="fp-tag">${L.tag}</span><span class="fp-alm"></span></div>
+    <div class="fp-desc" title="${L.mo}: nível de T${k + 1} manipulando ${VALVE_TAG[k]}">Nível T${k + 1} → ${VALVE_TAG[k]}</div>
+    <div class="fp-mode"><span class="aut" title="Automático. O PID_ISA do MF_ST não tem modo manual.">AUT</span><span class="alg"></span></div>
+    <div class="fp-bars">
+      <div class="fp-scale">${ticks}</div>
+      <div class="bar pvbar" title="PV (barra) e SP (marcador), 0 a ${TANK_MAX} cm. Tracejado: ${HMIN} cm."><div class="fill"></div><div class="lo" style="bottom:${HMIN / TANK_MAX * 100}%"></div><div class="sp"></div></div>
+      <div class="bar mvbar" title="MV: abertura de ${VALVE_TAG[k]}, 0 a 100 %"><div class="fill"></div></div>
+    </div>
+    <div class="fp-read">
+      <span class="k">PV</span><span class="v pv"></span><span class="u">cm</span>
+      <span class="k">SP</span><span class="v sp"></span><span class="u">cm</span>
+      <span class="k">MV</span><span class="v mv"></span><span class="u">%</span>
+    </div>
+    <div class="fp-sp">
+      <button type="button" class="btn dn" aria-label="Baixar SP de ${L.tag}">▼</button>
+      <input type="text" inputmode="decimal" autocomplete="off" aria-label="Setpoint de ${L.tag} em cm (Enter aplica)" title="Digite o SP e tecle Enter">
+      <button type="button" class="btn up" aria-label="Subir SP de ${L.tag}">▲</button>
+    </div>
+    <div class="fp-tune"><span>Kp</span><b class="kp"></b><span>Ti</span><b class="ti"></b><span>Td</span><b class="td"></b><span class="dg"></span></div>
+    <button type="button" class="btn small fp-cfg">Sintonia</button>`;
+  fpsEl.appendChild(d);
+  const q = s => d.querySelector(s);
+  const U = {
+    d, alm: q(".fp-alm").appendChild(indH(null)), alg: q(".alg"),
+    fill: q(".pvbar .fill"), spm: q(".pvbar .sp"), mvFill: q(".mvbar .fill"),
+    pv: q(".v.pv"), sp: q(".v.sp"), mv: q(".v.mv"), inp: q(".fp-sp input"),
+    kp: q(".kp"), ti: q(".ti"), td: q(".td"), dg: q(".dg"),
+  };
+  const typed = () => parseFloat(U.inp.value.replace(",", "."));
+  U.inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") { applySP(k, typed()); U.inp.select(); }
+    else if (e.key === "Escape") { U.inp.value = fmt(val(`${L.mo}.SP`), 1); U.inp.blur(); }
+  });
+  U.inp.addEventListener("focus", () => selectLoop(k));
+  const nudge = s => { const base = isFinite(val(`${L.mo}.SP`)) ? val(`${L.mo}.SP`) : pv(`${L.sp}_bias`); applySP(k, base + s * SP_STEP); };
+  q(".fp-sp .dn").addEventListener("click", () => nudge(-1));
+  q(".fp-sp .up").addEventListener("click", () => nudge(1));
+  q(".fp-cfg").addEventListener("click", () => {
+    showTab("cfg");
+    const c = ctlCards[k];
+    if (c) { c.scrollIntoView({ block: "nearest" }); c.classList.add("flash"); setTimeout(() => c.classList.remove("flash"), 1500); }
+  });
+  d.addEventListener("pointerdown", () => selectLoop(k));
+  return U;
 });
+function selectLoop(k, focus) {
+  loopUI.forEach((U, j) => U.d.classList.toggle("sel", j === k));
+  if (focus) { showTab("op"); loopUI[k].inp.focus(); loopUI[k].inp.select(); }
+}
+function applySP(k, x) {
+  const L = loops[k];
+  if (!isFinite(x) || !def(`${L.sp}_bias`)) return;
+  x = Math.max(0, Math.min(TANK_MAX, Math.round(x * 10) / 10));
+  const old = val(`${L.mo}.SP`);
+  const ty = pv("TimeYset"), dg = isFinite(ty) && simNow() >= ty ? pv(`${L.sp}_degrau`) || 0 : 0;
+  setParam(`${L.sp}_bias`, x - dg);
+  paramsChanged();
+  loopUI[k].inp.value = fmt(x, 1);
+  if (!(Math.abs(old - x) < 1e-9)) logEv("OPR", L.tag, `SP ${fmt(old, 1)} → ${fmt(x, 1)} cm`);
+}
 function updateLoopStatic() {
   if (!modelo) return;
   loops.forEach((L, k) => {
     const U = loopUI[k], g = n => pv(`${L.mo}.${n}`);
     const td = g("Td");
-    U.badge.textContent = td > 0 ? "PID" : "PI"; U.badge.classList.toggle("pid", td > 0);
+    U.alg.textContent = td > 0 ? "PID" : "PI";
+    U.kp.textContent = fmt(g("Kp"), 2); U.ti.textContent = `${fmt(g("Ti"), 0)} s`; U.td.textContent = `${fmt(td, 1)} s`;
     const dg = pv(`${L.sp}_degrau`);
-    U.params.textContent = `Kp ${fmt(g("Kp"), 2)} · Ti ${fmt(g("Ti"), 0)} s · Td ${fmt(td, 1)} s` + (dg ? ` · degrau ${dg > 0 ? "+" : ""}${fmt(dg, 1)} em ${fmt(pv("TimeYset"), 0)} s` : "");
+    U.dg.textContent = dg ? `degrau ${dg > 0 ? "+" : ""}${fmt(dg, 1)} cm em ${fmt(pv("TimeYset"), 0)} s` : "";
   });
 }
 function updateLoops() {
+  const y = v => `${clamp01(v / TANK_MAX) * 100}%`;
   loops.forEach((L, k) => {
-    const U = loopUI[k], mv = val(`${L.mo}.MV`);
-    U.pvC.textContent = fmt(val(`${L.mo}.PV`), 2);
-    U.spC.textContent = fmt(val(`${L.mo}.SP`), 1);
-    U.mvC.textContent = isFinite(mv) ? pct(mv) : "—";
-    const st = !isFinite(mv) ? -1 : mv >= 0.999 ? 2 : mv <= 0.001 ? 0 : 1;
-    if (String(st) === U.key) return;
-    U.key = String(st); U.chips.textContent = "";
-    if (st === 2) chip(U.chips, "warn", "MV em 100 %");
-    else if (st === 0) chip(U.chips, "warn", "MV em 0 %");
+    const U = loopUI[k];
+    const pvV = val(`${L.mo}.PV`), spV = val(`${L.mo}.SP`), mv = val(`${L.mo}.MV`);
+    U.pv.textContent = fmt(pvV, 2);
+    U.sp.textContent = fmt(spV, 1);
+    U.mv.textContent = isFinite(mv) ? fmt(mv * 100, 0) : "—";
+    U.fill.style.height = isFinite(pvV) ? y(pvV) : "0";
+    U.spm.hidden = !isFinite(spV);
+    if (isFinite(spV)) U.spm.style.bottom = y(spV);
+    U.mvFill.style.height = isFinite(mv) ? `${clamp01(mv) * 100}%` : "0";
+    if (document.activeElement !== U.inp) U.inp.value = isFinite(spV) ? fmt(spV, 1) : "";
+    setIndH(U.alm, worstFor([L.tag, VALVE_TAG[k]]));
   });
 }
 
-/* --- aba Configuração (gerada a partir dos parâmetros do .mo) --- */
+/* --- tela Parâmetros (gerada a partir dos parâmetros do .mo) --- */
+let ctlCards = [];
 function buildList(list, parent) {
   list.forEach(d => {
     if (d.head) { const h = document.createElement("div"); h.className = "subhead"; h.textContent = d.head; parent.appendChild(h); return; }
@@ -1132,14 +1444,9 @@ function buildList(list, parent) {
 function buildControls() {
   controls = [];
   ["ctlGrid", "pidCommon", "expList", "procList", "pumpList", "others"].forEach(id => (document.getElementById(id).textContent = ""));
-  // setpoint de cada malha no cartão da aba Operação
-  loops.forEach((L, k) => {
-    loopUI[k].spBox.textContent = "";
-    paramSlider(loopUI[k].spBox, { label: "Setpoint", sym: `${L.sp}_bias`, params: [`${L.sp}_bias`], min: 0, max: 30, step: 0.1, show: cm1 });
-  });
   // cartões de sintonia
   const ctlGrid = document.getElementById("ctlGrid");
-  loops.forEach((L, k) => {
+  ctlCards = loops.map((L, k) => {
     const card = document.createElement("div"); card.className = "ctl";
     const head = document.createElement("div"); head.className = "loop-head";
     const key = document.createElement("span"); key.className = "key"; key.style.setProperty("--c", `var(--s${k + 1})`);
@@ -1147,15 +1454,21 @@ function buildControls() {
     const desc = document.createElement("span"); desc.className = "desc"; desc.textContent = `${L.mo}: ${L.h} → ${VALVE_TAG[k]}`;
     head.append(key, tag, desc); card.appendChild(head);
     const kpN = `${L.mo}.Kp`;
-    const sg = seg(card, [[1, "Kp > 0"], [-1, "Kp < 0"]], Math.sign(pv(kpN)) || 1, v => { setParam(kpN, v * Math.abs(pv(kpN))); paramsChanged(); }, `Sinal de Kp de ${L.tag}`);
+    const sg = seg(card, [[1, "Kp > 0"], [-1, "Kp < 0"]], Math.sign(pv(kpN)) || 1, v => {
+      const was = Math.sign(pv(kpN)) || 1;
+      setParam(kpN, v * Math.abs(pv(kpN))); paramsChanged();
+      if (was !== v) logEv("OPR", L.tag, `Sinal de Kp: ${was > 0 ? "+" : "−"} → ${v > 0 ? "+" : "−"}`);
+    }, `Sinal de Kp de ${L.tag}`);
     controls.push({ params: [kpN], upd: () => sg.set(Math.sign(pv(kpN)) || 1) });
-    paramSlider(card, { label: "Ganho proporcional |Kp|", sym: "Kp", params: [kpN], min: 0.01, max: 3, step: 0.01, show: n2,
+    const tag_ = L.tag;
+    paramSlider(card, { tag: tag_, label: "Ganho proporcional |Kp|", sym: "Kp", params: [kpN], min: 0.01, max: 3, step: 0.01, show: n2,
       get: () => Math.abs(pv(kpN)), set: x => setParam(kpN, (Math.sign(pv(kpN)) || 1) * x) });
-    paramSlider(card, { label: "Tempo integral", sym: "Ti", params: [`${L.mo}.Ti`], min: 1, max: 300, step: 1, show: sec });
-    paramSlider(card, { label: "Tempo derivativo", sym: "Td", params: [`${L.mo}.Td`], min: 0, max: 10, step: 0.1, show: v => (v > 0 ? `${fmt(v, 1)} s` : "0 (PI)") });
-    paramSlider(card, { label: "Setpoint", sym: `${L.sp}_bias`, params: [`${L.sp}_bias`], min: 0, max: 30, step: 0.1, show: cm1 });
-    paramSlider(card, { label: "Degrau", sym: `${L.sp}_degrau`, params: [`${L.sp}_degrau`], min: -10, max: 10, step: 0.1, show: v => `${v > 0 ? "+" : ""}${fmt(v, 1)} cm` });
+    paramSlider(card, { tag: tag_, label: "Tempo integral", sym: "Ti", params: [`${L.mo}.Ti`], min: 1, max: 300, step: 1, show: sec });
+    paramSlider(card, { tag: tag_, label: "Tempo derivativo", sym: "Td", params: [`${L.mo}.Td`], min: 0, max: 10, step: 0.1, show: v => (v > 0 ? `${fmt(v, 1)} s` : "0 (PI)") });
+    paramSlider(card, { tag: tag_, label: "Setpoint", sym: `${L.sp}_bias`, params: [`${L.sp}_bias`], min: 0, max: 30, step: 0.1, show: cm1 });
+    paramSlider(card, { tag: tag_, label: "Degrau", sym: `${L.sp}_degrau`, params: [`${L.sp}_degrau`], min: -10, max: 10, step: 0.1, show: v => `${v > 0 ? "+" : ""}${fmt(v, 1)} cm` });
     ctlGrid.appendChild(card);
+    return card;
   });
   const pc = document.getElementById("pidCommon");
   COMMON.forEach(d => paramSlider(pc, d));
@@ -1172,16 +1485,26 @@ function buildControls() {
     const inp = document.createElement("input"); inp.type = "number"; inp.step = "any"; inp.setAttribute("aria-label", p.nome);
     w.title = `${p.nome} · valor do .mo: ${fmtG(p.valor)}${p.comentario ? " · " + p.comentario : ""}`;
     w.append(s, inp); oth.appendChild(w);
-    inp.addEventListener("change", () => { setParam(p.nome, parseFloat(inp.value.replace(",", "."))); paramsChanged(); });
+    inp.addEventListener("change", () => {
+      const old = pv(p.nome);
+      setParam(p.nome, parseFloat(inp.value.replace(",", "."))); paramsChanged();
+      logEv("OPR", p.nome, `${fmtG(old)} → ${fmtG(pv(p.nome))}`);
+    });
     controls.push({ params: [p.nome], upd() { if (document.activeElement !== inp) inp.value = String(+pv(p.nome).toPrecision(6)); w.classList.toggle("changed", p.nome in overrides); } });
   });
-  if (!rest.length) oth.parentNode.hidden = true;
+  oth.parentNode.hidden = !rest.length;
   syncControls();
 }
-document.getElementById("btnDefaults").addEventListener("click", () => { for (const k in overrides) delete overrides[k]; paramsChanged(); });
-document.getElementById("btnRestore").addEventListener("click", () => { for (const k in overrides) delete overrides[k]; Object.assign(overrides, scen.P); paramsChanged(); });
+document.getElementById("btnDefaults").addEventListener("click", () => {
+  for (const k in overrides) delete overrides[k];
+  paramsChanged(); logEv("OPR", "", "Parâmetros voltaram aos valores do .mo");
+});
+document.getElementById("btnRestore").addEventListener("click", () => {
+  for (const k in overrides) delete overrides[k];
+  Object.assign(overrides, scen.P); paramsChanged(); logEv("OPR", "", `Parâmetros restaurados do cenário "${scen.name}"`);
+});
 
-/* --- aba Análise: tudo lido do resultado --- */
+/* --- tela Análise: tudo lido do resultado --- */
 const FLOWROWS = [
   ["Ramo 1 se recebesse a bomba toda", "P.F1_completo"],
   ["Ramo 2 se recebesse a bomba toda", "P.F2_completo"],
@@ -1278,13 +1601,79 @@ function filterVars() {
 varFilter.addEventListener("input", filterVars);
 function updateVars() { varRows.forEach(r => { if (!r.tr.hidden) r.b.textContent = fmtG(val(r.n)); }); }
 
+/* --- barra de alarmes e tela Alarmes --- */
+const almBar = document.getElementById("almBar"), almCnt = document.getElementById("almCnt"), tabAlmN = document.getElementById("tabAlmN");
+const almBody = document.querySelector("#almTable tbody"), almEmpty = document.getElementById("almEmpty");
+const evBody = document.querySelector("#evTable tbody");
+const tcell = (text, cls) => { const c = document.createElement("td"); if (cls) c.className = cls; c.textContent = text; return c; };
+function renderAlarms() {
+  if (!alarmsDirty) return;
+  alarmsDirty = false;
+  const list = shownAlarms();
+  const active = ALM.filter(a => a.on), unack = ALM.filter(a => !a.ack);
+  // contadores
+  almCnt.textContent = "";
+  [1, 2, 3].forEach(p => {
+    const n = active.filter(a => a.prio === p).length;
+    const s = document.createElement("span"); s.style.display = "inline-flex"; s.style.gap = "3px"; s.style.alignItems = "center";
+    s.append(indH({ prio: p, ack: !unack.some(a => a.prio === p) }), document.createTextNode(n));
+    s.title = `Prioridade ${p}: ${n} ativo${n === 1 ? "" : "s"}`;
+    almCnt.appendChild(s);
+  });
+  tabAlmN.hidden = !unack.length; tabAlmN.textContent = unack.length;
+  // rodapé: os alarmes mais importantes
+  almBar.textContent = "";
+  if (!list.length) { const s = document.createElement("span"); s.className = "alm-none"; s.textContent = "Sem alarmes ativos"; almBar.appendChild(s); }
+  list.slice(0, 6).forEach(a => {
+    const b = document.createElement("button"); b.type = "button";
+    b.className = `abtn p${a.prio}${a.on ? "" : " rtn"}`;
+    b.title = `${a.tag} ${a.code}: ${a.desc}\nentrou em t = ${fmtClock(a.tIn)} (${hhmmss(a.wIn)})${a.on ? "" : "\nvoltou ao normal"}${a.ack ? "" : "\nclique para reconhecer"}`;
+    const tg = document.createElement("b"); tg.textContent = a.tag;
+    const ds = document.createElement("span"); ds.className = "d"; ds.textContent = a.desc;
+    b.append(indH(a), tg, ds);
+    b.addEventListener("click", () => { ack(a); renderAlarms(); });
+    almBar.appendChild(b);
+  });
+  document.getElementById("btnAckAll").disabled = !unack.length;
+  // tabela da tela Alarmes
+  almBody.textContent = "";
+  almEmpty.hidden = !!list.length;
+  list.forEach(a => {
+    const tr = document.createElement("tr"); tr.className = `click${a.on ? "" : " rtn"}`;
+    const p = document.createElement("td"); p.appendChild(indH(a));
+    const st = tcell(`${a.on ? "ATIVO" : "NORMAL"} · ${a.ack ? "REC." : "NÃO REC."}`, a.ack ? "" : "st-un");
+    tr.append(p, tcell(hhmmss(a.wIn), "mono"), tcell(fmtClock(a.tIn), "mono"), tcell(a.tag), tcell(a.code, "mono"), tcell(a.desc, "desc"), st);
+    tr.title = a.ack ? "" : "Clique para reconhecer";
+    tr.addEventListener("click", () => { ack(a); renderAlarms(); });
+    almBody.appendChild(tr);
+  });
+}
+function renderJournal() {
+  if (!journalDirty) return;
+  journalDirty = false;
+  const frag = document.createDocumentFragment();
+  journal.forEach(e => {
+    const tr = document.createElement("tr");
+    const k = document.createElement("td");
+    if (e.kind === "ALM") k.appendChild(indH({ prio: e.prio, ack: true }));
+    const kb = document.createElement("span"); kb.className = "kind"; kb.textContent = e.kind; k.append(" ", kb);
+    tr.append(tcell(hhmmss(e.w), "mono"), tcell(fmtClock(e.t), "mono"), k, tcell(e.tag || "—"), tcell(e.text, "desc"));
+    frag.appendChild(tr);
+  });
+  evBody.textContent = "";
+  evBody.appendChild(frag);
+}
+document.getElementById("btnAckAll").addEventListener("click", ackAll);
+document.getElementById("btnAckAll2").addEventListener("click", ackAll);
+document.getElementById("btnAlmTab").addEventListener("click", () => showTab("alm"));
+
 /* ---------- cenários ---------- */
 const scenSel = document.getElementById("scenSel");
 const scenGrid = document.getElementById("scenGrid");
 const scenCards = SCEN.map((s, i) => {
   const o = document.createElement("option"); o.value = s.id; o.textContent = `${i + 1}. ${s.name}`; scenSel.appendChild(o);
   const card = document.createElement("div"); card.className = "card scen";
-  const top = document.createElement("div"); top.className = "top";
+  const top = document.createElement("div"); top.className = "card-head";
   const h = document.createElement("h3"); h.textContent = s.name;
   const n = document.createElement("span"); n.className = "num"; n.textContent = `cenário ${i + 1}`;
   top.append(h, n);
@@ -1308,13 +1697,14 @@ function loadScenario(id) {
   scenSel.value = scen.id;
   scenCards.forEach((c, i) => c.classList.toggle("active", SCEN[i] === scen));
   document.getElementById("scName").textContent = scen.name;
-  document.getElementById("scShort").textContent = scen.short;
+  const sh = document.getElementById("scShort"); sh.textContent = sh.title = scen.short;
   syncControls();
   restart();
-  setRunning(true);
+  logEv("SIS", "", `Cenário carregado: ${scen.name} (t = 0, tanques vazios)`);
+  setRunning(true, true);
 }
 
-/* ---------- abas ---------- */
+/* ---------- telas ---------- */
 const tabs = [...document.querySelectorAll(".tab")];
 let curTab = "op";
 function showTab(id) {
@@ -1322,18 +1712,24 @@ function showTab(id) {
   tabs.forEach(t => t.setAttribute("aria-selected", t.dataset.tab === id ? "true" : "false"));
   document.querySelectorAll("[data-panel]").forEach(p => (p.hidden = p.dataset.panel !== id));
   if (id === "ana") { updateAnalysis(); updateVars(); }
+  if (id === "alm") { alarmsDirty = true; renderAlarms(); renderJournal(); }
 }
 tabs.forEach(t => t.addEventListener("click", () => showTab(t.dataset.tab)));
 
 /* ---------- execução ---------- */
 const btnRun = document.getElementById("btnRun");
-function setRunning(r) { running = r; btnRun.textContent = running ? "Pausar" : "Continuar"; }
+function setRunning(r, quiet) {
+  if (!quiet && r !== running) logEv("OPR", "", r ? "Simulação retomada" : "Simulação pausada");
+  running = r; btnRun.textContent = running ? "❚❚ Pausar" : "▶ Continuar";
+}
 btnRun.addEventListener("click", () => setRunning(!running));
-document.getElementById("btnReset").addEventListener("click", () => { restart(); setRunning(true); });
+document.getElementById("btnReset").addEventListener("click", () => {
+  restart(); logEv("OPR", "", "Simulação reiniciada pelo operador (t = 0, tanques vazios)"); setRunning(true, true);
+});
 const speedSeg = seg(document.getElementById("speedSeg"), [[1, "1×"], [10, "10×"], [30, "30×"], [60, "60×"], [120, "120×"], [300, "300×"]], speed, v => (speed = v), "Velocidade da simulação");
 seg(document.getElementById("winSeg"), [[300, "5 min"], [900, "15 min"], [1800, "30 min"]], win, v => (win = v), "Janela de tempo");
-const clockEl = document.getElementById("clock");
-const fmtClock = t => { const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60); return h ? `${h} h ${String(m).padStart(2, "0")} min` : m ? `${m} min ${String(s).padStart(2, "0")} s` : `${s} s`; };
+const clockEl = document.getElementById("clock"), wallDate = document.getElementById("wallDate"), wallTime = document.getElementById("wallTime");
+function updateWall() { const d = new Date(); wallDate.textContent = d.toLocaleDateString("pt-BR"); wallTime.textContent = hhmmss(d); }
 
 /* ---------- CSV: janela em memória, todas as variáveis ---------- */
 document.getElementById("btnCsv").addEventListener("click", () => {
@@ -1364,25 +1760,32 @@ function frame(ts) {
     trimOld();
     if (end - tCur < speed * LOOKAHEAD || !buf.t.length) fetchChunk();
   }
-  clockEl.textContent = fmtClock(buf && buf.t.length ? buf.t[iCur] : 0);
+  clockEl.textContent = fmtClock(simNow());
   if (curTab === "op") {
     readTheme();
-    drawPlant(realDt);
+    drawPlant();
+    syncScroll();
     CHARTS.forEach(drawChart);
   }
   uiTick += realDt;
   if (uiTick > 0.2) {
     uiTick = 0;
+    evalAlarms();
+    renderAlarms();
+    updateWall();
     updateSS(); updateLoops(); updateSimState();
     if (curTab === "ana") { updateAnalysis(); updateVars(); }
+    if (curTab === "alm") renderJournal();
   }
   requestAnimationFrame(frame);
 }
 
 /* ---------- início ---------- */
 document.getElementById("scName").textContent = scen.name;
-document.getElementById("scShort").textContent = scen.short;
+{ const sh = document.getElementById("scShort"); sh.textContent = sh.title = scen.short; }
 scenCards[0].classList.add("active");
+updateWall();
+logEv("SIS", "", "Tela iniciada");
 requestAnimationFrame(frame);
 if (location.protocol === "file:") failed(new Error("file"));
 else loadModel().then(() => loadScenario(scen.id)).catch(failed);

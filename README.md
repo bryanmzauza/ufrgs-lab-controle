@@ -30,10 +30,13 @@ Como funciona:
 - Quando o `.mo` muda, o servidor recompila sozinho e a simulação reinicia.
 - A página não tem nenhuma equação do modelo: só envia os parâmetros e desenha o resultado.
 
-A página tem quatro abas, pensadas para caber numa tela Full HD sem rolagem:
-- **Operação:** diagrama, tendências e controladores, com slider de setpoint em cada malha;
-- **Configuração:** sliders para os parâmetros do `MF_ST` (controladores, processo, bombas) e campos para os demais;
+A página segue o padrão de tela de SDCD (ISA-101): fundo cinza, cor só para alarme e barra de alarmes sempre visível no rodapé. Ela tem cinco telas, pensadas para caber numa tela Full HD sem rolagem:
+- **Visão geral:** sinótico, tendências e um faceplate por malha (LIC-01 a LIC-04) com barras de PV/SP/MV. O SP é digitado (Enter aplica) ou ajustado em ▲/▼. Clicar num tanque chama o controlador dele;
+- **Parâmetros:** sliders para os parâmetros do `MF_ST` (controladores, processo, bombas) e campos para os demais;
 - **Análise:** vazões, pressões, estado atual e todas as variáveis do resultado;
+- **Alarmes:** alarmes ativos com reconhecimento e diário de eventos (alarmes, reconhecimentos e ações do operador);
 - **Cenários:** 5 conjuntos de parâmetros prontos para apresentar.
+
+Os alarmes são da página, não do `.mo`: comparam o resultado do OpenModelica com limites de operação (nível alto, nível abaixo de 5 cm em regime, desvio PV − SP, válvula saturada e falha de comunicação com o OpenModelica).
 
 O mesmo `.mo` também abre no OMEdit ou no Dymola: simule `MF_ST`.
