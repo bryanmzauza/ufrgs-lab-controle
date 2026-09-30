@@ -1,0 +1,17 @@
+# OpenModelica / Dymola (saídas de simulação)
+*_res.mat
+*_res.csv
+*.makefile
+*.libs
+*.log.txt
+*_info.json
+*_init.xml
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+
+# Python
+__pycache__/
