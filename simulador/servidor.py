@@ -34,7 +34,7 @@ import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-ARQUIVO_MO = os.path.normpath(os.path.join(AQUI, "..", "modelos", "modelo_6tanques_v11.mo"))
+ARQUIVO_MO = os.path.normpath(os.path.join(AQUI, "..", "modelos", "modelo_6tanques_v12.mo"))
 MODELO = "MF_ST"
 PAGINA = os.path.join(AQUI, "simulador_seis_tanques.html")
 PASTA_BUILD = os.path.join(tempfile.gettempdir(), "seis_tanques_om")

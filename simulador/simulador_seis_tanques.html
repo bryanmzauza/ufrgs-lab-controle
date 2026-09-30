@@ -128,6 +128,15 @@ select{border:1px solid var(--line);background:var(--raised);padding:4px 6px;fon
 .valve.a3{stroke:var(--alm3);stroke-width:2.4}
 .valve3{fill:var(--chart);stroke:var(--equip);stroke-width:1.4;stroke-linejoin:round}
 .res{fill:var(--water);opacity:.55;stroke:var(--equip);stroke-width:1.2}
+/* instrumentação (ISA-5.1): função no SDCD = círculo dentro de quadrado; sinal elétrico tracejado */
+.inst rect,.inst circle{fill:var(--chart);stroke:var(--equip);stroke-width:1.2}
+.inst line{stroke:var(--equip);stroke-width:1}
+#plant .inst text{font:700 9.5px var(--sans);fill:var(--ink);text-anchor:middle}
+.inst-hit{cursor:pointer}
+.inst-hit:hover rect{stroke-dasharray:3 2}
+.pcon{stroke:var(--ink-2);stroke-width:1.2}
+.sig{fill:none;stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:5 3}
+.act{fill:var(--chart);stroke:var(--equip);stroke-width:1.2}
 .ind path{stroke:var(--ink);stroke-width:.8}
 .ind text{font:700 10px var(--sans)!important;text-anchor:middle}
 .ind.p1 path{fill:var(--alm1)}.ind.p1 text{fill:var(--alm1-ink)}
@@ -356,7 +365,7 @@ select{border:1px solid var(--line);background:var(--raised);padding:4px 6px;fon
   <!-- ================= VISÃO GERAL ================= -->
   <section class="op" data-panel="op" role="tabpanel">
     <div class="card plant-card">
-      <div class="card-head"><h2>Sinótico</h2><span class="note">tanques 0 a 30 cm · clique num tanque para chamar o controlador</span></div>
+      <div class="card-head"><h2>Sinótico</h2><span class="note">tanques 0 a 30 cm · tracejado: sinal · clique num tanque ou LIC</span></div>
       <svg id="plant" viewBox="0 20 560 672" role="img" aria-label="Sinótico dos seis tanques com bombas, válvulas e vazões"></svg>
       <div class="card-head" style="margin:6px -10px 6px;border-top:1px solid var(--line)"><h2>Regime ≥ <span id="hMinTxt">5</span> cm</h2><span class="note">requisito do trabalho</span></div>
       <div class="ssgrid" id="ssGrid"></div>
@@ -538,45 +547,61 @@ const loops = [
   { tag: "LIC-04", mo: "C4", h: "h4", sp: "h4sp" },
 ];
 const VALVE_TAG = ["FV-01", "FV-02", "FV-03", "FV-04"]; // P.x1..P.x4, tags da bancada (ímpar: FV-01 entra, FV-03 sai de T3; par: FV-02 entra, FV-04 sai de T4)
+// válvula de cada malha: com pareamento_cruzado = 1 (padrão desde a v12) C1 move FV-02 e C2 move FV-01
+const valveOf = k => (k < 2 && pv("pareamento_cruzado") > 0.5 ? 1 - k : k);
+const loopValve = k => VALVE_TAG[valveOf(k)];
 const tankTag = k => (k <= 4 ? loops[k - 1].tag : `LI-0${k}`); // T1..T4 têm controlador; T5 e T6 só indicação
 
 /* ---------- cenários: só parâmetros do MF_ST ---------- */
 // Os números citados foram lidos das simulações do OpenModelica com estes mesmos parâmetros (tanques partindo vazios).
 const SP10 = { h1sp_bias: 10, h1sp_degrau: 0, h2sp_bias: 10, h2sp_degrau: 0 };
+// MF_ST da v11 (antes da linearização). Cenário com base: V11 aplica estes overrides e depois os de P,
+// assim os cenários antigos continuam valendo com o .mo da v12.
+const V11 = {
+  rot_bomba_inicial_bias: 0.4, r1: 0.6, r2: 0.4, h1sp_bias: 12, h2sp_bias: 12, pareamento_cruzado: 0,
+  "C1.Kp": 0.05, "C2.Kp": 0.05, "C3.Kp": -0.05, "C4.Kp": -0.05,
+  "C1.Ti": 120, "C2.Ti": 120, "C3.Ti": 120, "C4.Ti": 120, "C1.Td": 1, "C2.Td": 1, "C3.Td": 1, "C4.Td": 1,
+};
 const SCEN = [
   {
-    id: "v10", name: "Modelo .mo como está", speed: 30, P: {},
-    short: "MF_ST sem alteração: r1 = 0,6, r2 = 0,4, B-01 a 40 %, divisão 50 %, C1 a C4 com Kp = ±0,05, Ti = 120 s, Td = 1 s, tanques partindo vazios e degraus de SP em t = 10 s.",
+    id: "v12", name: "Modelo .mo como está", speed: 30, P: {},
+    short: "MF_ST sem alteração (v12): B-01 a 100 %, r1 = r2 = 0,15, SP de h1/h2 em 9 cm e de h3/h4 em 12 cm, pareamento cruzado (C1 → FV-02, C2 → FV-01), PI com sintonia SIMC do modelo linearizado, tanques partindo vazios e degraus de SP em t = 300 s.",
+    observe: ["Em t = 300 s os níveis já estão no SP. Depois dos degraus, cada malha acomoda em 2 a 3 min.", "No estacionário h1 = 8, h2 = 10, h3 = 13 e h4 = 11 cm; T5 fica com 5,8 cm e T6 com 8,0 cm. As válvulas ficam entre 22 % e 69 %."],
+    concept: "Ponto de operação escolhido com o modelo linearizado: r1 + r2 < 1 deixa T5/T6 acima de 5 cm, e o RGA (λ12 = 1,03) indica o pareamento cruzado.",
+  },
+  {
+    id: "v11", name: "Modelo da v11", speed: 30, base: V11, P: {},
+    short: "MF_ST da v11: r1 = 0,6, r2 = 0,4, B-01 a 40 %, divisão 50 %, SP em 12 cm, pareamento direto, C1 a C4 com Kp = ±0,05, Ti = 120 s, Td = 1 s, tanques partindo vazios e degraus de SP em t = 300 s.",
     observe: ["FV-01 e FV-02 saturam em 100 % e ainda falta água.", "No estacionário h1 ≈ 3,6 cm, h2 ≈ 1,8 cm, h5 ≈ 1,1 cm e h6 ≈ 0,6 cm. Só T3 e T4 atingem o setpoint."],
     concept: "Capacidade do atuador: com a B-01 a 40 %, a curva da bomba limita a vazão de entrada.",
   },
   {
-    id: "b100", name: "Bomba de entrada a 100 %", speed: 30, P: { rot_bomba_inicial_bias: 1 },
-    short: "MF_ST com rot_bomba_inicial_bias = 1. Sobra bomba, mas r1 + r2 = 1.",
+    id: "b100", name: "v11 com a bomba de entrada a 100 %", speed: 30, base: V11, P: { rot_bomba_inicial_bias: 1 },
+    short: "MF_ST da v11 com rot_bomba_inicial_bias = 1. Sobra bomba, mas r1 + r2 = 1.",
     observe: ["h1 chega a 11 cm, mas h2 trava em 5,6 cm com FV-02 a 100 %.", "T6 fica com 1,0 cm."],
     concept: "r1 + r2 = 1 torna singular o ganho estático entre [F1 F2] e as vazões que chegam a T1/T2: h1 e h2 não podem ser escolhidos separadamente.",
   },
   {
-    id: "r02", name: "r1 = r2 = 0,2 com o pareamento do .mo", speed: 60,
-    P: { rot_bomba_inicial_bias: 1, r1: 0.2, r2: 0.2, ...SP10 },
-    short: "B-01 a 100 %, r1 = r2 = 0,2 e SP de h1 e h2 em 10 cm (sem degrau). C1 continua em P.x1 e C2 em P.x2, como no MF_ST.",
+    id: "r02", name: "r1 = r2 = 0,2 com o pareamento direto", speed: 60,
+    base: V11, P: { rot_bomba_inicial_bias: 1, r1: 0.2, r2: 0.2, ...SP10 },
+    short: "Sintonia da v11, B-01 a 100 %, r1 = r2 = 0,2 e SP de h1 e h2 em 10 cm (sem degrau). C1 continua em P.x1 e C2 em P.x2, como na v11 (pareamento_cruzado = 0).",
     observe: ["As malhas brigam: FV-01 satura em 100 % e FV-02 fecha para cerca de 24 %.", "h2 atinge 10 cm, mas h1 desce devagar até 4,4 cm e h5 até 2,1 cm (estável depois de ~2 h)."],
-    concept: "Com r pequeno, a maior parte de F1 chega a T2 (via T6 e T4): o pareamento direto do MF_ST fica inadequado.",
+    concept: "Com r pequeno, a maior parte de F1 chega a T2 (via T6 e T4): o pareamento direto fica inadequado. Por isso a v12 usa o cruzado.",
   },
   {
     id: "r07", name: "r1 = r2 = 0,7 e sintonia rápida", speed: 10,
-    P: { rot_bomba_inicial_bias: 1, r1: 0.7, r2: 0.7, ...SP10,
+    base: V11, P: { rot_bomba_inicial_bias: 1, r1: 0.7, r2: 0.7, ...SP10,
       "C1.Kp": 0.3, "C1.Ti": 30, "C2.Kp": 0.3, "C2.Ti": 30, "C3.Kp": -0.3, "C3.Ti": 30, "C4.Kp": -0.3, "C4.Ti": 30 },
-    short: "B-01 a 100 %, r1 = r2 = 0,7, SP de h1 e h2 em 10 cm e controladores com |Kp| = 0,3 e Ti = 30 s.",
-    observe: ["Acomoda em cerca de 2 min.", "No estacionário T5 e T6 ficam com 1,3 cm: não atende o mínimo de 5 cm."],
+    short: "B-01 a 100 %, r1 = r2 = 0,7, pareamento direto, SP de h1 e h2 em 10 cm e controladores com |Kp| = 0,3, Ti = 30 s e Td = 1 s.",
+    observe: ["Acomoda cerca de 2 min depois dos degraus de h3 e h4 (t = 300 s).", "No estacionário T5 e T6 ficam com 1,3 cm: não atende o mínimo de 5 cm."],
     concept: "r1 + r2 > 1 dá bom pareamento, mas pouca vazão passa por T5 e T6.",
   },
   {
     id: "step", name: "Degrau de setpoint tardio", speed: 60,
-    P: { rot_bomba_inicial_bias: 1, r1: 0.7, r2: 0.7, h1sp_bias: 10, h1sp_degrau: 1, h2sp_bias: 10, h2sp_degrau: 0, h3sp_degrau: 0, h4sp_degrau: 0, TimeYset: 1500 },
-    short: "B-01 a 100 %, r1 = r2 = 0,7, sintonia do .mo. Em TimeYset = 1500 s só o SP de h1 muda, de 10 para 11 cm (os degraus de h2, h3 e h4 foram zerados).",
+    base: V11, P: { rot_bomba_inicial_bias: 1, r1: 0.7, r2: 0.7, h1sp_bias: 10, h1sp_degrau: 1, h2sp_bias: 10, h2sp_degrau: 0, h3sp_degrau: 0, h4sp_degrau: 0, TimeYset: 1500 },
+    short: "B-01 a 100 %, r1 = r2 = 0,7, pareamento direto, sintonia da v11. Em TimeYset = 1500 s só o SP de h1 muda, de 10 para 11 cm (os degraus de h2, h3 e h4 foram zerados).",
     observe: ["FV-01 abre de 65 % para cerca de 84 %.", "h1 sobe devagar (10,9 cm em t = 3000 s) e h2 se afasta no máximo 0,12 cm de 10 cm."],
-    concept: "Resposta servo com a sintonia lenta do .mo (Kp = 0,05, Ti = 120 s).",
+    concept: "Resposta servo com a sintonia lenta da v11 (Kp = 0,05, Ti = 120 s).",
   },
 ];
 let scen = SCEN[0];
@@ -720,8 +745,11 @@ for (let k = 1; k <= 6; k++) {
 loops.forEach((L, k) => {
   const dev = () => Math.abs(val(`${L.mo}.PV`) - val(`${L.mo}.SP`)) > DEV_MAX;
   alarm(L.tag, "DV", `Desvio |PV − SP| > ${fmt(DEV_MAX, 0)} cm em regime`, 2, () => steadyNow() && dev(), 0, dev);
-  alarm(VALVE_TAG[k], "MHI", `${VALVE_TAG[k]} saturada em 100 % (${L.tag})`, 2, () => pastStartup() && val(`${L.mo}.MV`) >= 0.999, SAT_DELAY);
-  alarm(VALVE_TAG[k], "MLO", `${VALVE_TAG[k]} fechada em 0 % (${L.tag})`, 3, () => pastStartup() && val(`${L.mo}.MV`) <= 0.001, SAT_DELAY);
+});
+// por válvula (P.x), não por malha: o pareamento de C1/C2 é parâmetro do .mo
+VALVE_TAG.forEach((v, i) => {
+  alarm(v, "MHI", `${v} saturada em 100 %`, 2, () => pastStartup() && val(`P.x${i + 1}`) >= 0.999, SAT_DELAY);
+  alarm(v, "MLO", `${v} fechada em 0 %`, 3, () => pastStartup() && val(`P.x${i + 1}`) <= 0.001, SAT_DELAY);
 });
 alarm("OMC", "COM", "OpenModelica sem resposta ou com erro", 1, () => halted);
 alarm("OMC", "AVS", "OpenModelica: avisos no último trecho", 3, () => !!(lastInfo && lastInfo.avisos.length));
@@ -891,8 +919,8 @@ function valve(cx, cy, label, lx, anchor) {
 const valves = [
   valve(46, 470, "FV-01", 60, "start"),
   valve(514, 470, "FV-02", 500, "end"),
-  valve(180, 414, "FV-03", 164, "end"),
-  valve(380, 414, "FV-04", 396, "start"),
+  valve(180, 414, "FV-03", 196, "start"),  // atuador à esquerda, rótulo à direita
+  valve(380, 414, "FV-04", 364, "end"),
 ];
 function valve3(cx, cy, side) {
   const g = el("g", {});
@@ -908,7 +936,63 @@ el("text", { x: 505, y: 292, class: "t-tag", "text-anchor": "end" }).textContent
 const f1Lbl = el("text", { x: 55, y: 306, class: "t-small" });
 const f2Lbl = el("text", { x: 505, y: 306, class: "t-small", "text-anchor": "end" });
 
+// Instrumentação (ISA-5.1). Cada tanque tem uma função de nível no SDCD (LIC nas malhas, LI em T5/T6), ligada
+// ao tanque por uma linha de processo; a medição (LT) fica implícita nessa ligação. O sinal de saída do LIC vai,
+// tracejado, até o atuador de diafragma da válvula. C1/C2 seguem o parâmetro pareamento_cruzado.
+// Atuadores: FV-01 e FV-03 à esquerda da válvula, FV-02 e FV-04 à direita (x = ponta do atuador).
+const ACT = [{ x: 20, side: -1 }, { x: 540, side: 1 }, { x: 154, side: -1 }, { x: 406, side: 1 }];
+valves.forEach((vv, i) => {
+  const cx = [46, 514, 180, 380][i], cy = [470, 470, 414, 414][i], s = ACT[i].side;
+  const g = el("g", {});
+  el("line", { x1: cx + s * 8, y1: cy, x2: cx + s * 14, y2: cy, class: "pcon" }, g);
+  el("path", { d: `M${cx + s * 14} ${cy - 7} A7 7 0 0 ${s > 0 ? 1 : 0} ${cx + s * 14} ${cy + 7} Z`, class: "act" }, g);
+});
+// posição do símbolo e ponto de ligação na parede do tanque
+const INST = [
+  { tag: "LIC-01", x: 105, y: 512, wx: 130, loop: 0 }, { tag: "LIC-02", x: 455, y: 512, wx: 430, loop: 1 },
+  { tag: "LIC-03", x: 100, y: 300, wx: 130, loop: 2 }, { tag: "LIC-04", x: 460, y: 300, wx: 430, loop: 3 },
+  { tag: "LI-05", x: 100, y: 130, wx: 130, loop: -1 }, { tag: "LI-06", x: 460, y: 130, wx: 430, loop: -1 },
+];
+// Caminho do sinal de cada malha até cada válvula possível. C1/C2 descem para um barramento entre os tanques de
+// baixo e o reservatório (y 556/568) e sobem pela borda até FV-01 (x 10) ou FV-02 (x 550).
+const IR = 16; // meio lado do símbolo
+function sigPath(k, v) {
+  const I = INST[k], y0 = I.y + IR;
+  if (k >= 2) return `M${I.x} ${y0} V${[470, 470, 414, 414][v]} H${ACT[v].x}`;
+  const bus = k === 0 ? 556 : 568, edge = v === 0 ? 10 : 550;
+  return `M${I.x} ${y0} V${bus} H${edge} V470 H${ACT[v].x}`;
+}
+const sigG = el("g", {});
+INST.forEach(I => {
+  const g = el("g", { class: "inst" });
+  el("line", { x1: I.x + (I.wx > I.x ? IR : -IR), y1: I.y, x2: I.wx, y2: I.y, class: "pcon" }, g);
+  el("rect", { x: I.x - IR, y: I.y - IR, width: 2 * IR, height: 2 * IR }, g);
+  el("circle", { cx: I.x, cy: I.y, r: IR }, g);
+  el("line", { x1: I.x - IR, y1: I.y, x2: I.x + IR, y2: I.y }, g);
+  const [fn, num] = I.tag.split("-");
+  el("text", { x: I.x, y: I.y - 4 }, g).textContent = fn;
+  el("text", { x: I.x, y: I.y + 11.5 }, g).textContent = num;
+  if (I.loop >= 0) {
+    g.classList.add("inst-hit");
+    g.addEventListener("click", () => selectLoop(I.loop, true));
+    I.title = el("title", {}, g);
+    I.sig = el("path", { class: "sig" }, sigG);
+    I.v = -1;
+  } else el("title", {}, g).textContent = `${I.tag}: indicação de nível de T${I.tag.slice(-1)}`;
+});
+function drawInst() {
+  INST.forEach((I, k) => {
+    if (I.loop < 0) return;
+    const v = valveOf(k);
+    if (v === I.v) return;
+    I.v = v;
+    I.sig.setAttribute("d", sigPath(k, v));
+    I.title.textContent = `${I.tag} (${loops[k].mo}): nível de T${k + 1} → ${VALVE_TAG[v]} · clique para chamar o controlador`;
+  });
+}
+
 function drawPlant() {
+  drawInst();
   const inner = TH - 22;
   const yOf = (t, h) => t.y + TH - 1 - Math.max(0, Math.min(TANK_MAX, h)) / TANK_MAX * inner;
   TANKS.forEach(t => {
@@ -1021,7 +1105,7 @@ const CHARTS = [
     unit: "cm", dec: 2, lo: true,
   },
   { id: "c1", legend: "lg1", series: [5, 6].map(k => ({ f: `h${k}`, c: `--s${k}`, label: tankTag(k), sub: `h${k}` })), unit: "cm", dec: 2, lo: true },
-  { id: "c2", legend: "lg2", series: [0, 1, 2, 3].map(k => ({ f: `C${k + 1}.MV`, k: 100, c: `--s${k + 1}`, label: VALVE_TAG[k], sub: loops[k].mo })), fixed: [0, 100], unit: "%", dec: 0 },
+  { id: "c2", legend: "lg2", series: [0, 1, 2, 3].map(k => ({ f: `C${k + 1}.MV`, k: 100, c: `--s${k + 1}`, get label() { return loopValve(k); }, sub: loops[k].mo })), fixed: [0, 100], unit: "%", dec: 0 },
 ];
 function buildLegends() {
   CHARTS.forEach(ch => {
@@ -1328,6 +1412,7 @@ const PUMPS = [
 ];
 const CS = ["C1.", "C2.", "C3.", "C4."];
 const COMMON = [
+  { label: "Pareamento de C1 e C2", sym: "pareamento_cruzado", params: ["pareamento_cruzado"], min: 0, max: 1, step: 1, show: v => (v > 0.5 ? "cruzado (C1 → FV-02)" : "direto (C1 → FV-01)") },
   { label: "Filtro da derivada", sym: "N", params: CS.map(c => c + "N"), min: 1, max: 20, step: 1, show: n0 },
   { label: "Peso do SP no proporcional", sym: "b", params: CS.map(c => c + "b"), min: 0, max: 1, step: 0.05, show: n2 },
   { label: "Anti-windup (tracking)", sym: "FTt", params: CS.map(c => c + "FTt"), min: 0, max: 10, step: 0.1, show: n1 },
@@ -1368,7 +1453,7 @@ const loopUI = loops.map((L, k) => {
   fpsEl.appendChild(d);
   const q = s => d.querySelector(s);
   const U = {
-    d, alm: q(".fp-alm").appendChild(indH(null)), alg: q(".alg"),
+    d, alm: q(".fp-alm").appendChild(indH(null)), alg: q(".alg"), desc: q(".fp-desc"), mvbar: q(".mvbar"),
     fill: q(".pvbar .fill"), spm: q(".pvbar .sp"), mvFill: q(".mvbar .fill"),
     pv: q(".v.pv"), sp: q(".v.sp"), mv: q(".v.mv"), inp: q(".fp-sp input"),
     kp: q(".kp"), ti: q(".ti"), td: q(".td"), dg: q(".dg"),
@@ -1414,7 +1499,14 @@ function updateLoopStatic() {
     U.kp.textContent = fmt(g("Kp"), 2); U.ti.textContent = `${fmt(g("Ti"), 0)} s`; U.td.textContent = `${fmt(td, 1)} s`;
     const dg = pv(`${L.sp}_degrau`);
     U.dg.textContent = dg ? `degrau ${dg > 0 ? "+" : ""}${fmt(dg, 1)} cm em ${fmt(pv("TimeYset"), 0)} s` : "";
+    const v = loopValve(k);
+    U.desc.textContent = `Nível T${k + 1} → ${v}`;
+    U.desc.title = `${L.mo}: nível de T${k + 1} manipulando ${v}`;
+    U.mvbar.title = `MV: abertura de ${v}, 0 a 100 %`;
+    const cd = ctlCards[k] && ctlCards[k].querySelector(".loop-head .desc");
+    if (cd) cd.textContent = `${L.mo}: ${L.h} → ${v}`;
   });
+  buildLegends();
 }
 function updateLoops() {
   const y = v => `${clamp01(v / TANK_MAX) * 100}%`;
@@ -1429,7 +1521,7 @@ function updateLoops() {
     if (isFinite(spV)) U.spm.style.bottom = y(spV);
     U.mvFill.style.height = isFinite(mv) ? `${clamp01(mv) * 100}%` : "0";
     if (document.activeElement !== U.inp) U.inp.value = isFinite(spV) ? fmt(spV, 1) : "";
-    setIndH(U.alm, worstFor([L.tag, VALVE_TAG[k]]));
+    setIndH(U.alm, worstFor([L.tag, loopValve(k)]));
   });
 }
 
@@ -1451,7 +1543,7 @@ function buildControls() {
     const head = document.createElement("div"); head.className = "loop-head";
     const key = document.createElement("span"); key.className = "key"; key.style.setProperty("--c", `var(--s${k + 1})`);
     const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = L.tag;
-    const desc = document.createElement("span"); desc.className = "desc"; desc.textContent = `${L.mo}: ${L.h} → ${VALVE_TAG[k]}`;
+    const desc = document.createElement("span"); desc.className = "desc"; desc.textContent = `${L.mo}: ${L.h} → ${loopValve(k)}`;
     head.append(key, tag, desc); card.appendChild(head);
     const kpN = `${L.mo}.Kp`;
     const sg = seg(card, [[1, "Kp > 0"], [-1, "Kp < 0"]], Math.sign(pv(kpN)) || 1, v => {
@@ -1501,7 +1593,7 @@ document.getElementById("btnDefaults").addEventListener("click", () => {
 });
 document.getElementById("btnRestore").addEventListener("click", () => {
   for (const k in overrides) delete overrides[k];
-  Object.assign(overrides, scen.P); paramsChanged(); logEv("OPR", "", `Parâmetros restaurados do cenário "${scen.name}"`);
+  Object.assign(overrides, scen.base || {}, scen.P); paramsChanged(); logEv("OPR", "", `Parâmetros restaurados do cenário "${scen.name}"`);
 });
 
 /* --- tela Análise: tudo lido do resultado --- */
@@ -1540,7 +1632,7 @@ FLOWROWS.forEach(r => {
 });
 const stBody = document.querySelector("#stTable tbody");
 const ST_ROWS = [1, 2, 3, 4, 5, 6].map(k => [`Nível T${k}`, `h${k}`, v => `${fmt(v, 2)} cm`, v => v >= HMIN])
-  .concat(loops.map((L, k) => [`Abertura ${VALVE_TAG[k]}`, `${L.mo}.MV`, pct, v => v > 0.001 && v < 0.999]));
+  .concat(VALVE_TAG.map((v, i) => [`Abertura ${v}`, `P.x${i + 1}`, pct, x => x > 0.001 && x < 0.999]));
 ST_ROWS.forEach(r => {
   const tr = document.createElement("tr");
   const a = document.createElement("td"); a.textContent = r[0];
@@ -1680,7 +1772,8 @@ const scenCards = SCEN.map((s, i) => {
   const p = document.createElement("p"); p.textContent = s.short;
   const ov = document.createElement("div"); ov.className = "ov";
   const keys = Object.keys(s.P);
-  ov.textContent = keys.length ? "override: " + keys.map(k => `${k}=${s.P[k]}`).join(", ") : "sem override: o .mo como está";
+  const lista = keys.map(k => `${k}=${s.P[k]}`).join(", ");
+  ov.textContent = s.base ? `override: MF_ST da v11${keys.length ? " + " + lista : ""}` : keys.length ? "override: " + lista : "sem override: o .mo como está";
   const ul = document.createElement("ul"); s.observe.forEach(t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
   const c = document.createElement("div"); c.className = "concept"; c.textContent = s.concept;
   const b = document.createElement("button"); b.type = "button"; b.className = "btn primary small"; b.textContent = "Carregar e ver";
@@ -1692,7 +1785,7 @@ scenSel.addEventListener("change", () => loadScenario(scenSel.value));
 function loadScenario(id) {
   scen = SCEN.find(s => s.id === id) || SCEN[0];
   for (const k in overrides) delete overrides[k];
-  Object.assign(overrides, scen.P);
+  Object.assign(overrides, scen.base || {}, scen.P);
   speed = scen.speed; speedSeg.set(speed);
   scenSel.value = scen.id;
   scenCards.forEach((c, i) => c.classList.toggle("active", SCEN[i] === scen));
